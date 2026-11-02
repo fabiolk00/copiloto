@@ -1,4 +1,5 @@
 import { PART_NAMES, PART_WEEKS, type Area } from "@/lib/guias";
+import CaminhoBranches from "./CaminhoBranches";
 
 const ROMANS = ["I", "II", "III"] as const;
 
@@ -53,6 +54,8 @@ export default function CaminhoSection({ area }: { area: Area }) {
             </div>
           ))}
         </div>
+
+        <CaminhoBranches area={area} />
       </div>
     </div>
   );

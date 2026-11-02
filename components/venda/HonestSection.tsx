@@ -18,9 +18,6 @@ export default function HonestSection({ area }: { area: Area }) {
             {area.honestT}
           </h2>
           <p className="m-0 text-lg leading-[1.7] text-[#3A322D] text-pretty">{area.honest}</p>
-          <p className="m-0 text-lg leading-[1.7] text-[#3A322D]">
-            Se não fizer sentido para você, os 7 dias de garantia existem para isso.
-          </p>
         </div>
       </div>
     </div>

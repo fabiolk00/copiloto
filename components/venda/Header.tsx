@@ -14,6 +14,7 @@ const NAV_ITEMS = [
 export default function Header() {
   const [progress, setProgress] = useState(0);
   const [activeSection, setActiveSection] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => {
@@ -63,13 +64,52 @@ export default function Header() {
           ))}
         </nav>
 
-        <a
-          href="#fechamento"
-          className="min-h-11 px-[18px] rounded-xl bg-[#8C5E1E] text-[#FBF8F2] no-underline text-[15px] font-semibold flex items-center hover:bg-[#6F4914] hover:text-[#FBF8F2]"
-        >
-          Quero o guia
-        </a>
+        <div className="flex items-center gap-1">
+          <a
+            href="#fechamento"
+            className="min-h-10 px-[18px] rounded-xl bg-[#8C5E1E] text-[#FBF8F2] no-underline text-[15px] font-semibold flex items-center hover:bg-[#6F4914] hover:text-[#FBF8F2]"
+          >
+            Quero o guia
+          </a>
+          <button
+            type="button"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-expanded={menuOpen}
+            aria-label="Abrir navegação"
+            className="md:hidden w-11 h-11 border-0 bg-transparent cursor-pointer flex flex-col items-center justify-center gap-[5px]"
+          >
+            <span className="w-[18px] h-[1.5px] bg-[#2A2420]" />
+            <span className="w-[18px] h-[1.5px] bg-[#2A2420]" />
+            <span className="w-3 h-[1.5px] bg-[#2A2420] self-center -ml-1.5" />
+          </button>
+        </div>
       </div>
+
+      {menuOpen && (
+        <nav className="md:hidden px-5 pt-1 pb-4 flex flex-col border-t border-[#E6DCCD]">
+          {NAV_ITEMS.map(({ id, num, label }) => {
+            const current = activeSection === id;
+            return (
+              <a
+                key={id}
+                href={`#${id}`}
+                onClick={() => setMenuOpen(false)}
+                aria-current={current}
+                className="min-h-12 flex items-center gap-3 no-underline text-[#2A2420] text-[17px] border-b border-[#EDE4D6]"
+                style={{ fontWeight: current ? 600 : 400 }}
+              >
+                <span className="w-7 font-serif text-[15px] text-[#645950]">{num}</span>
+                <span className="flex-1">{label}</span>
+                <span
+                  className="w-2 h-2 rounded-full border-[1.5px] border-[#8C5E1E]"
+                  style={{ background: current ? "#8C5E1E" : "transparent" }}
+                />
+              </a>
+            );
+          })}
+        </nav>
+      )}
+
       <div className="h-0.5 bg-[#E6DCCD]">
         <div
           className="h-0.5 bg-[#8C5E1E] transition-[width] duration-150"

@@ -1,4 +1,7 @@
 import { BRAND_NAME, type Area } from "@/lib/guias";
+import CtaLink from "./CtaLink";
+import HeroSub from "./HeroSub";
+import TrilhaSelector from "./TrilhaSelector";
 
 export default function Hero({ area }: { area: Area }) {
   return (
@@ -16,26 +19,22 @@ export default function Hero({ area }: { area: Area }) {
           {area.h1}
         </h1>
 
-        <p className="m-0 max-w-[580px] text-xl leading-[1.6] text-[#4A403A] text-pretty">
-          {area.sub}
-        </p>
+        <HeroSub area={area} />
 
-        <div className="flex items-center gap-7 pt-1.5">
-          <a
+        <TrilhaSelector area={area} />
+
+        <div className="flex flex-col gap-2.5 pt-1.5">
+          <CtaLink
+            area={area.slug}
+            posicao="hero"
             href="#fechamento"
-            className="min-h-[58px] px-[30px] rounded-2xl bg-[#8C5E1E] text-[#FBF8F2] no-underline text-[17px] font-semibold flex items-center hover:bg-[#6F4914] hover:text-[#FBF8F2]"
+            className="min-h-[58px] px-[30px] rounded-2xl bg-[#8C5E1E] text-[#FBF8F2] no-underline text-[17px] font-semibold flex items-center justify-center hover:bg-[#6F4914] hover:text-[#FBF8F2]"
           >
-            Quero o guia · R$ [preço]
-          </a>
-          <div className="flex items-center gap-2.5 text-[15px] text-[#4A403A]">
-            <span
-              className="w-[30px] h-[30px] rounded-full border-[1.5px] flex items-center justify-center text-[13px]"
-              style={{ borderColor: area.c, color: area.ct }}
-            >
-              7
-            </span>
-            <span>Garantia de 7 dias</span>
-          </div>
+            Quero o guia · R$ 29,90
+          </CtaLink>
+          <span className="text-sm text-[#645950] text-center">
+            Pagamento único · PDF no seu e-mail
+          </span>
         </div>
       </div>
 

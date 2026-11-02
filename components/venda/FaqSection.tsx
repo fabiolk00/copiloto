@@ -38,7 +38,17 @@ export default function FaqSection({ area }: { area: Area }) {
                 aria-expanded={open}
                 className="w-full min-h-16 py-[18px] bg-transparent border-0 flex items-center justify-between gap-4 text-left text-lg font-medium text-[#2A2420] cursor-pointer"
               >
-                <span>{q}</span>
+                <span className="flex flex-col gap-1">
+                  {i === 0 && (
+                    <span
+                      className="text-xs tracking-[.08em] uppercase"
+                      style={{ color: area.ct }}
+                    >
+                      {area.name}
+                    </span>
+                  )}
+                  <span>{q}</span>
+                </span>
                 <span className="flex-none w-[30px] h-[30px] rounded-full border border-[#C9BBA8] flex items-center justify-center text-[#645950]">
                   {open ? "−" : "+"}
                 </span>

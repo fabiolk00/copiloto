@@ -21,7 +21,7 @@ export default function BonusAndTestimonials({ area }: { area: Area }) {
           </div>
         </div>
         <div className="flex items-center justify-between mt-auto">
-          <span className="text-[15px] text-[#4A403A]">+ R$ [preço]</span>
+          <span className="text-[15px] text-[#4A403A]">+ R$ 29,90</span>
           <button
             type="button"
             className="min-h-11 px-[18px] rounded-xl border-[1.5px] border-[#2A2420] bg-transparent text-[#2A2420] text-[15px] font-semibold cursor-pointer hover:bg-[#2A2420] hover:text-[#FBF8F2]"

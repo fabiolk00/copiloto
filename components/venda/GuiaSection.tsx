@@ -1,6 +1,11 @@
 import { PDF_PAGES, type Area } from "@/lib/guias";
 
 export default function GuiaSection({ area }: { area: Area }) {
+  const gives = [
+    ...area.gives,
+    "Etapa III com as duas trilhas: crescer onde está e mudar de empresa",
+  ];
+
   return (
     <div
       id="guia"
@@ -19,7 +24,7 @@ export default function GuiaSection({ area }: { area: Area }) {
         </h2>
 
         <div className="max-w-[680px] flex flex-col border-t border-[#E2D8C9]">
-          {area.gives.map((g) => (
+          {gives.map((g) => (
             <div
               key={g}
               className="flex gap-4 py-4 border-b border-[#E2D8C9] text-lg leading-[1.5] text-[#3A322D]"
