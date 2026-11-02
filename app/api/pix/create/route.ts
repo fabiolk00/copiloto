@@ -57,7 +57,8 @@ export async function POST(req: NextRequest) {
     }
 
     const attempt = existing ? existing.attempt + 1 : 1;
-    const externalReference = `${clientToken}:${attempt}`;
+    // external_reference é validado pela Mercado Pago contra um padrão que não aceita ":" — só "-".
+    const externalReference = `${clientToken}-a${attempt}`;
     const idempotencyKey = `pix-order:${clientToken}:${attempt}`;
 
     const order = new Order(client);
