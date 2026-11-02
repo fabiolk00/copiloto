@@ -5,18 +5,19 @@ import { getPedidoByMpOrderId, markPedidoStatus, recordWebhookEventOnce } from "
 
 const client = new MercadoPagoConfig({ accessToken: env.MP_ACCESS_TOKEN });
 
-function mapPaymentStatus(status: string | undefined): "pago" | "falhou" | "cancelado" | null {
-  switch (status) {
-    case "approved":
-      return "pago";
-    case "rejected":
-      return "falhou";
-    case "cancelled":
-      return "cancelado";
-    default:
-      // action_required / waiting_transfer / unknown — ainda não é um estado final.
-      return null;
+// Confirmado contra a Orders API real: um Pix pago chega como status "processed" +
+// status_detail "accredited" — não "approved" (isso só é assim na Payments API).
+function mapPaymentStatus(
+  status: string | undefined,
+  statusDetail: string | undefined
+): "pago" | "falhou" | "cancelado" | null {
+  if (status === "approved" || (status === "processed" && statusDetail === "accredited")) {
+    return "pago";
   }
+  if (status === "rejected") return "falhou";
+  if (status === "cancelled") return "cancelado";
+  // action_required / waiting_transfer / unknown — ainda não é um estado final.
+  return null;
 }
 
 export async function POST(req: NextRequest) {
@@ -60,7 +61,10 @@ export async function POST(req: NextRequest) {
   // resposta é enviada — "disparar e esquecer" depois do 200 arriscaria nunca
   // concluir a confirmação do pagamento. A verificação (uma consulta à Orders
   // API + um UPDATE) é rápida e cabe dentro da janela de timeout da Mercado Pago.
-  if (type !== "orders") {
+  // A documentação bundled chama o tópico "orders", mas o painel registra a
+  // subscrição como "order" (singular) — sem nunca ter visto uma entrega real,
+  // aceitamos as duas grafias em vez de arriscar descartar notificações reais.
+  if (type !== "orders" && type !== "order") {
     return new NextResponse(null, { status: 200 });
   }
 
@@ -75,7 +79,7 @@ export async function POST(req: NextRequest) {
       return new NextResponse(null, { status: 200 });
     }
 
-    const nextStatus = mapPaymentStatus(payment?.status);
+    const nextStatus = mapPaymentStatus(payment?.status, payment?.status_detail);
     if (nextStatus) {
       await markPedidoStatus(dataId, nextStatus);
       console.log("[webhook] pedido atualizado", { pedidoId: pedido.id, mpOrderId: dataId, status: nextStatus });
