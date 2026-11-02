@@ -1,0 +1,284 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { track } from "@/lib/track";
+import { useTrilha } from "./TrilhaProvider";
+
+type Step = "idle" | "email" | "loading" | "waiting" | "paid" | "expired" | "error";
+
+type PixData = {
+  pedidoId: string;
+  qrCode: string;
+  qrCodeBase64: string;
+  ticketUrl: string | null;
+  expiresAt: string;
+};
+
+const POLL_MIN_MS = 5_000;
+const POLL_MAX_MS = 30_000;
+
+function emailLooksValid(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function formatCountdown(ms: number): string {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}
+
+export default function PixCheckout({
+  area,
+  areaName,
+  className,
+  children,
+}: {
+  area: string;
+  areaName: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const { trilha } = useTrilha();
+  const [clientToken] = useState(() => crypto.randomUUID());
+
+  const [step, setStep] = useState<Step>("idle");
+  const [email, setEmail] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [pix, setPix] = useState<PixData | null>(null);
+  const [remainingMs, setRemainingMs] = useState(0);
+  const [copied, setCopied] = useState(false);
+
+  const createPix = useCallback(async () => {
+    setStep("loading");
+    setErrorMessage(null);
+    try {
+      const res = await fetch("/api/pix/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          area,
+          trilha,
+          payerEmail: email,
+          clientToken,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Não foi possível gerar o Pix.");
+
+      setPix(data);
+      setStep("waiting");
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "Não foi possível gerar o Pix.");
+      setStep("error");
+    }
+  }, [area, email, trilha, clientToken]);
+
+  // Countdown — drives the UI independently of the backend poll, so expiry
+  // feedback is instant instead of waiting for the next 5s tick.
+  useEffect(() => {
+    if (step !== "waiting" || !pix) return;
+    const tick = () => {
+      const ms = new Date(pix.expiresAt).getTime() - Date.now();
+      setRemainingMs(ms);
+      if (ms <= 0) setStep("expired");
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [step, pix]);
+
+  // Polling with backoff, stopping on a terminal status or once locally expired.
+  useEffect(() => {
+    if (step !== "waiting" || !pix) return;
+    let delay = POLL_MIN_MS;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/orders/${pix.pedidoId}/status`, { cache: "no-store" });
+        const data = await res.json();
+        if (cancelled) return;
+
+        if (data.status === "pago") {
+          setStep("paid");
+          return;
+        }
+        if (data.status === "expirado" || data.status === "cancelado" || data.status === "falhou") {
+          setStep("expired");
+          return;
+        }
+      } catch {
+        // rede instável — mantém o polling, só aumenta o intervalo abaixo
+      }
+      if (cancelled) return;
+      delay = Math.min(delay * 1.5, POLL_MAX_MS);
+      timer = setTimeout(poll, delay);
+    };
+
+    timer = setTimeout(poll, delay);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [step, pix]);
+
+  const handleStart = () => {
+    track("click_cta", { area, trilha: trilha ?? undefined, posicao: "closing" });
+    setStep("email");
+  };
+
+  const handleEmailSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailLooksValid(email)) {
+      setErrorMessage("Digite um e-mail válido — é para onde o PDF vai ser enviado.");
+      return;
+    }
+    createPix();
+  };
+
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand("copy");
+      } catch {
+        // nada mais a fazer — o campo abaixo já permite selecionar manualmente
+      }
+      document.body.removeChild(textarea);
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (step === "idle") {
+    return (
+      <button type="button" onClick={handleStart} className={className}>
+        {children}
+      </button>
+    );
+  }
+
+  if (step === "email") {
+    return (
+      <form onSubmit={handleEmailSubmit} className="flex flex-col gap-2">
+        <label htmlFor="pix-email" className="text-sm text-[#4A403A]">
+          Seu e-mail (é para onde o PDF vai)
+        </label>
+        <input
+          id="pix-email"
+          type="email"
+          required
+          autoFocus
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="voce@email.com"
+          className="min-h-12 rounded-xl border border-[#DCCFBD] px-4 text-base"
+        />
+        <button type="submit" className={className}>
+          Gerar código Pix
+        </button>
+        {errorMessage && <p role="alert" className="text-sm text-red-700">{errorMessage}</p>}
+      </form>
+    );
+  }
+
+  if (step === "loading") {
+    return (
+      <button type="button" disabled aria-busy className={className}>
+        Gerando o Pix…
+      </button>
+    );
+  }
+
+  if (step === "error") {
+    return (
+      <div className="flex flex-col gap-2">
+        <p role="alert" className="text-sm text-red-700">{errorMessage}</p>
+        <button type="button" onClick={createPix} className={className}>
+          Tentar de novo
+        </button>
+      </div>
+    );
+  }
+
+  if (step === "expired") {
+    return (
+      <div className="flex flex-col gap-2 items-center">
+        <p className="text-sm text-[#4A403A]">Esse Pix expirou.</p>
+        <button type="button" onClick={createPix} className={className}>
+          Gerar novo Pix
+        </button>
+      </div>
+    );
+  }
+
+  if (step === "paid") {
+    return (
+      <div
+        role="status"
+        className="rounded-2xl border border-[#DCCFBD] bg-[#FBF8F2] p-6 flex flex-col gap-2 items-center text-center"
+      >
+        <span className="text-2xl">✅</span>
+        <p className="font-semibold">Pagamento aprovado!</p>
+        <p className="text-sm text-[#4A403A]">
+          O PDF do guia de {areaName} chega no seu e-mail em poucos minutos.
+        </p>
+      </div>
+    );
+  }
+
+  // step === "waiting"
+  return (
+    <div className="rounded-2xl border border-[#DCCFBD] bg-[#FBF8F2] p-6 flex flex-col gap-4 items-center">
+      <p className="text-sm text-[#4A403A]">Escaneie o QR Code ou copie o código Pix</p>
+      {pix && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={`data:image/png;base64,${pix.qrCodeBase64}`}
+          alt="QR Code Pix para pagamento"
+          width={220}
+          height={220}
+          className="rounded-lg border border-[#DCCFBD]"
+        />
+      )}
+      <div className="w-full flex flex-col gap-2">
+        <label htmlFor="pix-copia-cola" className="text-xs text-[#645950]">
+          Pix copia e cola
+        </label>
+        <div className="flex gap-2">
+          <input
+            id="pix-copia-cola"
+            type="text"
+            readOnly
+            value={pix?.qrCode ?? ""}
+            onFocus={(e) => e.currentTarget.select()}
+            className="min-h-11 flex-1 rounded-xl border border-[#DCCFBD] px-3 text-xs"
+          />
+          <button
+            type="button"
+            onClick={() => pix && handleCopy(pix.qrCode)}
+            className="min-h-11 px-4 rounded-xl bg-[#8C5E1E] text-[#FBF8F2] text-sm font-semibold whitespace-nowrap"
+          >
+            {copied ? "Copiado!" : "Copiar"}
+          </button>
+        </div>
+      </div>
+      <p className="text-sm text-[#645950]">Expira em {formatCountdown(remainingMs)}</p>
+      {pix?.ticketUrl && (
+        <a href={pix.ticketUrl} target="_blank" rel="noreferrer" className="text-sm underline">
+          Abrir página de pagamento do Pix
+        </a>
+      )}
+      <p className="text-xs text-[#7A6E64]">Aguardando confirmação do pagamento…</p>
+    </div>
+  );
+}

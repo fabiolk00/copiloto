@@ -1,4 +1,6 @@
 import { GUARANTEES, type Area } from "@/lib/guias";
+import ClosingTrilhaLine from "./ClosingTrilhaLine";
+import PixCheckout from "./PixCheckout";
 
 export default function ClosingSection({ area }: { area: Area }) {
   return (
@@ -17,7 +19,7 @@ export default function ClosingSection({ area }: { area: Area }) {
           </h2>
           <div className="flex items-baseline gap-2.5">
             <span className="font-serif text-[56px] leading-none tracking-[-.02em]">
-              R$ [preço]
+              R$ 29,90
             </span>
             <span className="text-[15px] text-[#645950]">pagamento único</span>
           </div>
@@ -35,12 +37,14 @@ export default function ClosingSection({ area }: { area: Area }) {
               {g}
             </div>
           ))}
-          <a
-            href="#"
-            className="mt-2 min-h-15 rounded-2xl bg-[#8C5E1E] text-[#FBF8F2] no-underline text-lg font-semibold flex items-center justify-center hover:bg-[#6F4914] hover:text-[#FBF8F2]"
+          <ClosingTrilhaLine area={area} />
+          <PixCheckout
+            area={area.slug}
+            areaName={area.name}
+            className="mt-2 min-h-15 rounded-2xl bg-[#8C5E1E] text-[#FBF8F2] no-underline text-lg font-semibold flex items-center justify-center hover:bg-[#6F4914] hover:text-[#FBF8F2] disabled:opacity-70 disabled:cursor-wait"
           >
             Quero o guia de {area.name}
-          </a>
+          </PixCheckout>
           <span className="text-sm text-[#645950] text-center">
             Pagamento seguro · PDF enviado por e-mail
           </span>
