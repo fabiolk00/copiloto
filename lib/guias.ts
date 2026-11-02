@@ -1,3 +1,6 @@
+/** Reading track: grow in the current role, or move to a new company. Same product and price either way. */
+export type Trilha = "crescer" | "mudar";
+
 export type Area = {
   slug: string;
   name: string;
@@ -10,6 +13,8 @@ export type Area = {
   tint: string;
   h1: string;
   sub: string;
+  /** Hero subtitle per track, shown instead of `sub` once a track is selected. */
+  heroSub: Record<Trilha, string>;
   bonus: string;
   bonusD: string;
   honestT: string;
@@ -17,14 +22,31 @@ export type Area = {
   gives: string[];
   /** The 3 parts of the guide's path, in order (I, II, III). */
   parts: string[];
+  /** Part III branch per track: how that part plays out depending on the choice. Shown side by side, with the selected one highlighted. */
+  parteIII: Record<Trilha, { titulo: string; desc: string }>;
   /** [title, body] pairs of ready-to-use AI prompts from the guide. */
   prompts: [string, string][];
   /** The profession-specific FAQ entry, shown first. */
   faq1: [string, string];
 };
 
-export const BRAND_NAME = "Próxima Etapa";
+export const BRAND_NAME = "Copiloto de Carreira";
 export const SUPPORT_EMAIL = "suporte@seudominio.com.br";
+/** Single fixed price for any guide/area, in BRL. Computed server-side only — never trust a price from the client. */
+export const PRICE_BRL = 29.9;
+
+export const TRILHAS: { id: Trilha; rotulo: string; descricao: string }[] = [
+  {
+    id: "crescer",
+    rotulo: "Quero crescer onde estou",
+    descricao: "Levar o seu trabalho atual para o próximo nível, dentro da empresa onde já está.",
+  },
+  {
+    id: "mudar",
+    rotulo: "Quero mudar de empresa",
+    descricao: "Preparar currículo, LinkedIn e entrevistas para se candidatar a novas vagas.",
+  },
+];
 
 export const AREAS: Area[] = [
   {
@@ -36,6 +58,12 @@ export const AREAS: Area[] = [
     tint: "#E8EADB",
     h1: "Do fechamento do mês para a mesa onde as decisões são tomadas.",
     sub: "Um guia em três partes para quem trabalha no financeiro e quer ser lembrado por mais do que o número que não bateu. Com prompts prontos para usar a IA nas tarefas que mais tomam o seu tempo.",
+    heroSub: {
+      crescer:
+        "Um guia em três partes para quem quer crescer no financeiro dentro da empresa onde já está, com etapas semanais e prompts prontos para usar a IA nas tarefas que mais tomam o seu tempo.",
+      mudar:
+        "Um guia em três partes para quem quer se candidatar a novas vagas no financeiro, com etapas semanais e prompts prontos para organizar currículo, LinkedIn e entrevistas.",
+    },
     bonus: "Mapa de competências do financeiro",
     bonusD: "Uma planilha simples para marcar onde você está hoje e escolher as duas habilidades que vale trabalhar primeiro.",
     honestT: "Este guia vai te ajudar a estar mais perto de uma promoção.",
@@ -52,6 +80,16 @@ export const AREAS: Area[] = [
       "Liberar tempo da rotina com IA e escolher uma análise que gere decisão, não só relatório.",
       "Apresentar essa análise, abrir a conversa de carreira e definir os próximos seis meses.",
     ],
+    parteIII: {
+      crescer: {
+        titulo: "Virar referência no time de finanças",
+        desc: "Propor assumir uma análise recorrente para a diretoria e negociar o próximo nível com a sua liderança.",
+      },
+      mudar: {
+        titulo: "Levar o que construiu para outra empresa",
+        desc: "Traduzir suas entregas em currículo e LinkedIn, mirar vagas de FP&A ou controladoria e se preparar para entrevistas de caso.",
+      },
+    },
     prompts: [
       [
         "Explicar uma variação para a diretoria",
@@ -80,6 +118,12 @@ export const AREAS: Area[] = [
     tint: "#DCE7E6",
     h1: "Do “puxa esse relatório pra mim” para a pessoa consultada antes da decisão.",
     sub: "Um guia em três partes para quem trabalha com dados e quer que as análises virem recomendação. Com prompts prontos para usar a IA na limpeza, na revisão de código e na explicação de resultados.",
+    heroSub: {
+      crescer:
+        "Um guia em três partes para quem quer crescer na área de dados dentro da empresa onde já está, organizando como as suas análises chegam até quem decide, com prompts prontos para IA na limpeza, na revisão e na explicação de resultados.",
+      mudar:
+        "Um guia em três partes para quem quer se candidatar a novas vagas de dados, com etapas semanais e prompts prontos para organizar portfólio, currículo e entrevistas técnicas.",
+    },
     bonus: "Modelo de one-page para apresentar uma análise",
     bonusD: "Uma página para resumir pergunta, achado e recomendação, pronta para levar a uma reunião.",
     honestT: "Este guia não vai te ensinar a programar.",
@@ -96,6 +140,16 @@ export const AREAS: Area[] = [
       "Escolher uma pergunta de negócio e responder com a ajuda da IA, do dado à recomendação.",
       "Apresentar a recomendação, medir o que mudou e posicionar o seu próximo passo.",
     ],
+    parteIII: {
+      crescer: {
+        titulo: "Ser consultado antes da decisão",
+        desc: "Adotar uma área de negócio, levar recomendações mensais e alinhar com a liderança um escopo mais estratégico.",
+      },
+      mudar: {
+        titulo: "Buscar um time que use dados para decidir",
+        desc: "Montar um portfólio com duas análises, filtrar empresas pela maturidade de dados e treinar a explicação de resultados.",
+      },
+    },
     prompts: [
       [
         "Transformar análise em recomendação",
@@ -124,6 +178,12 @@ export const AREAS: Area[] = [
     tint: "#F1E1D6",
     h1: "Uma rotina comercial que não depende de estar motivado no dia.",
     sub: "Um guia em três partes para quem trabalha com vendas e quer resultados menos instáveis e um caminho claro para contas maiores ou liderança. Com prompts prontos para preparar reuniões, propostas e follow-ups.",
+    heroSub: {
+      crescer:
+        "Um guia em três partes para quem quer crescer na área comercial dentro da empresa onde já está, com uma rotina mais sustentável e prompts prontos para preparar reuniões, propostas e follow-ups.",
+      mudar:
+        "Um guia em três partes para quem quer se candidatar a novas vagas comerciais, com etapas semanais e prompts prontos para organizar currículo, networking e entrevistas.",
+    },
     bonus: "Roteiro de preparação para reuniões",
     bonusD: "Uma folha para preencher em dez minutos antes de cada reunião: contexto, perguntas e próximo passo.",
     honestT: "Este guia não vai bater a sua meta por você.",
@@ -140,6 +200,16 @@ export const AREAS: Area[] = [
       "Montar uma rotina semanal mínima e usar a IA para preparar cada reunião.",
       "Escolher entre contas maiores ou liderança e preparar a conversa com a sua gestão.",
     ],
+    parteIII: {
+      crescer: {
+        titulo: "Crescer para contas maiores ou liderança",
+        desc: "Usar a rotina das etapas anteriores como prova de consistência e abrir a conversa com a gestão.",
+      },
+      mudar: {
+        titulo: "Mudar para um contexto comercial melhor",
+        desc: "Organizar seus números reais em uma narrativa, avaliar empresas pelo modelo de comissão e preparar a entrevista.",
+      },
+    },
     prompts: [
       [
         "Preparar uma reunião de descoberta",
@@ -180,13 +250,13 @@ export const PDF_PAGES: { title: string; ph: string }[] = [
   { title: "Página de exercício", ph: "exercício" },
 ];
 
-export const GUARANTEES = [
-  "Acesso imediato, no seu e-mail",
-  "Acesso para sempre ao PDF",
-  "Reembolso integral em até 7 dias",
-];
+export const GUARANTEES = ["Acesso imediato, por e-mail", "Acesso permanente ao PDF"];
 
 export const COMMON_FAQ: [string, string][] = [
+  [
+    "Qual trilha eu devo escolher?",
+    "A que fizer mais sentido hoje. As etapas I e II são iguais para todos; a escolha só muda a etapa III, e o guia traz as duas ramificações completas.",
+  ],
   [
     "Como eu recebo o guia?",
     "Assim que o pagamento é confirmado, o PDF chega no e-mail informado em poucos minutos. Se não aparecer, confira o spam ou escreva para o suporte.",
@@ -198,10 +268,6 @@ export const COMMON_FAQ: [string, string][] = [
   [
     "Preciso pagar por alguma ferramenta de IA?",
     "Não. Os prompts funcionam nas versões gratuitas das ferramentas mais comuns.",
-  ],
-  [
-    "E se não fizer sentido para mim?",
-    "Você tem 7 dias. Responda o e-mail em que o guia chegou pedindo o reembolso e o valor volta integral, sem perguntas.",
   ],
   [
     "Por quanto tempo tenho acesso?",

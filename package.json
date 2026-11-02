@@ -9,9 +9,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "mercadopago": "^3.6.1",
     "next": "16.4.4",
+    "postgres": "^4.0.0",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
