@@ -65,5 +65,5 @@ export async function stopTestDb(handle: TestDbHandle): Promise<void> {
 
 /** Isola cada teste: zera todas as tabelas de domínio entre um teste e o próximo. */
 export async function resetTestDb(sql: postgres.Sql): Promise<void> {
-  await sql`truncate table pedido_webhook_reprocessamentos, pedido_webhook_eventos, pedidos restart identity cascade`;
+  await sql`truncate table pedido_webhook_eventos, pedidos restart identity cascade`;
 }
