@@ -4,6 +4,7 @@ import { MercadoPagoConfig, Order } from "mercadopago";
 import { env } from "@/lib/env";
 import { getPedidosParaReconciliar, markPedidosReconciliados } from "@/lib/pedidos";
 import { applyMpOrder } from "@/lib/reconcile";
+import { describeMpError } from "@/lib/mp-error";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 const client = new MercadoPagoConfig({ accessToken: env.MP_ACCESS_TOKEN });
@@ -63,17 +64,29 @@ export async function POST(req: NextRequest) {
 
     let updated = 0;
     let errors = 0;
+    // Quantos erros por código HTTP da Mercado Pago ("401", "404", "sem_status"...).
+    // Vai na resposta (visível em net._http_response no Supabase) para diagnosticar
+    // sem depender dos logs do Vercel. Só contagens, sem dados de pedido.
+    const errorStatuses = new Map<string, number>();
     for (const r of results) {
       if (r.status === "rejected") {
         errors += 1;
-        console.warn("[reconcile] falha ao conferir order", { error: String(r.reason) });
+        const detail = describeMpError(r.reason);
+        const key = String(detail.status ?? "sem_status");
+        errorStatuses.set(key, (errorStatuses.get(key) ?? 0) + 1);
+        console.warn("[reconcile] falha ao conferir order", detail);
       } else if (r.value === "atualizado") {
         updated += 1;
       }
     }
 
     return NextResponse.json(
-      { checked: pedidos.length, updated, errors },
+      {
+        checked: pedidos.length,
+        updated,
+        errors,
+        ...(errors > 0 ? { errorStatuses: Object.fromEntries(errorStatuses) } : {}),
+      },
       { headers: { "Cache-Control": "no-store" } }
     );
   } catch (err) {

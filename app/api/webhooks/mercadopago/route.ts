@@ -3,6 +3,7 @@ import { MercadoPagoConfig, Order, WebhookSignatureValidator, InvalidWebhookSign
 import { env } from "@/lib/env";
 import { markWebhookEventProcessed, recordWebhookEventOnce } from "@/lib/pedidos";
 import { applyMpOrder } from "@/lib/reconcile";
+import { describeMpError } from "@/lib/mp-error";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { readJsonWithLimit } from "@/lib/request-guards";
 
@@ -90,7 +91,7 @@ export async function POST(req: NextRequest) {
     // A reconciliação por pg_cron é a rede de segurança caso nenhuma reentrega chegue.
     console.warn("[webhook] falha ao consultar order na Mercado Pago, aguardando reentrega", {
       mpOrderId: dataId,
-      error: String(err),
+      ...describeMpError(err),
     });
     return new NextResponse(null, { status: 500 });
   }

@@ -4,6 +4,7 @@ import { NextRequest } from "next/server";
 import type { PGlite } from "@electric-sql/pglite";
 import type { PGLiteSocketServer } from "@electric-sql/pglite-socket";
 import { startTestDb, stopTestDb, resetTestDb, TEST_SQL_GLOBAL_KEY } from "../helpers/test-db";
+import { MPAuthenticationError, MPNotFoundError } from "mercadopago";
 import { _resetRateLimitState } from "@/lib/rate-limit";
 import {
   buildPixOrderGetResponseCancelled,
@@ -182,9 +183,42 @@ describe("POST /api/internal/reconcile — reconciliação", () => {
     const { status: st, json } = await chamar();
 
     expect(st).toBe(200);
-    expect(json).toEqual({ checked: 2, updated: 1, errors: 1 });
+    expect(json).toEqual({ checked: 2, updated: 1, errors: 1, errorStatuses: { sem_status: 1 } });
     expect(await status("falha")).toBe("pendente");
     expect(await status("ok")).toBe("pago");
+  });
+
+  it("agrupa os erros por código HTTP da Mercado Pago, para diagnosticar token errado (401) ou order inexistente (404)", async () => {
+    await inserirPedido({ token: "e401", mpOrderId: "ORD-401" });
+    await inserirPedido({ token: "e404a", mpOrderId: "ORD-404A" });
+    await inserirPedido({ token: "e404b", mpOrderId: "ORD-404B" });
+    orderGetMock.mockImplementation(async ({ id }: { id: string }) => {
+      if (id === "ORD-401") throw new MPAuthenticationError({ message: "invalid access token", status: 401 });
+      throw new MPNotFoundError({ message: "order not found", status: 404 });
+    });
+
+    const { json } = await chamar();
+
+    expect(json).toEqual({ checked: 3, updated: 0, errors: 3, errorStatuses: { "401": 1, "404": 2 } });
+  });
+
+  it("a resposta de erro não contém token, URL nem id de pedido", async () => {
+    await inserirPedido({ token: "vaza", mpOrderId: "ORD-SEGREDO-123" });
+    orderGetMock.mockRejectedValue(new MPAuthenticationError({ message: "Bearer TEST-access-token inválido", status: 401 }));
+
+    const { json } = await chamar();
+    const texto = JSON.stringify(json);
+
+    expect(texto).not.toContain("TEST-access-token");
+    expect(texto).not.toContain("ORD-SEGREDO-123");
+    expect(texto).not.toContain("http");
+  });
+
+  it("sem erros a resposta não traz o campo errorStatuses", async () => {
+    await inserirPedido({ token: "limpo", mpOrderId: "ORD-0001" });
+    orderGetMock.mockResolvedValueOnce(buildPixOrderGetResponsePending());
+    const { json } = await chamar();
+    expect("errorStatuses" in json).toBe(false);
   });
 
   it("uma segunda chamada logo em seguida não reconsulta (respiro de 30 s)", async () => {
