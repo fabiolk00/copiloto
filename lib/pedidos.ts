@@ -121,3 +121,23 @@ export async function recordWebhookEventOnce(
   `;
   return rows.length > 0;
 }
+
+/**
+ * Registra uma notificação para reprocessamento posterior quando a consulta
+ * à Orders API falhou (rede, 5xx, order não encontrada). Como o evento já
+ * foi consumido por `recordWebhookEventOnce`, uma redelivery da Mercado Pago
+ * não tentaria de novo sem este registro — um worker futuro (fora do escopo
+ * daqui) é quem lê esta tabela e tenta de novo.
+ */
+export async function scheduleWebhookReprocessing(
+  eventKey: string,
+  type: string,
+  dataId: string,
+  reason: string
+): Promise<void> {
+  await sql`
+    insert into pedido_webhook_reprocessamentos (event_key, type, data_id, reason)
+    values (${eventKey}, ${type}, ${dataId}, ${reason})
+    on conflict (event_key) do nothing
+  `;
+}

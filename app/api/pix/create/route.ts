@@ -3,13 +3,26 @@ import { z } from "zod";
 import { MercadoPagoConfig, Order } from "mercadopago";
 import { getAreaBySlug, PRICE_BRL } from "@/lib/guias";
 import { env } from "@/lib/env";
-import { isoDurationToMs } from "@/lib/pix";
+import {
+  buildExternalReference,
+  buildIdempotencyKey,
+  buildPixOrderPayload,
+  isoDurationToMs,
+} from "@/lib/pix";
 import {
   getPedidoByClientToken,
   insertPedido,
   savePixAttempt,
   type Pedido,
 } from "@/lib/pedidos";
+import { enforceIpRateLimit, readJsonWithLimit, tooLargeResponse } from "@/lib/request-guards";
+
+// Generoso para o payload real (poucos campos curtos) mas longe de um corpo
+// "enorme" conseguir consumir memória do processo.
+const MAX_BODY_BYTES = 10 * 1024;
+// Cada tentativa de Pix bem-sucedida já é idempotente por clientToken+attempt;
+// este limite trata o abuso de criar muitos clientTokens novos pelo mesmo IP.
+const RATE_LIMIT = { keyPrefix: "pix-create", limit: env.PIX_CREATE_RATE_LIMIT, windowMs: 60_000 };
 
 const bodySchema = z.object({
   area: z.string().min(1),
@@ -26,7 +39,13 @@ function isExpired(pedido: Pedido): boolean {
 }
 
 export async function POST(req: NextRequest) {
-  const parsed = bodySchema.safeParse(await req.json().catch(() => null));
+  const rateLimited = enforceIpRateLimit(req, RATE_LIMIT);
+  if (rateLimited) return rateLimited;
+
+  const bodyResult = await readJsonWithLimit(req, MAX_BODY_BYTES);
+  if (!bodyResult.ok) return tooLargeResponse();
+
+  const parsed = bodySchema.safeParse(bodyResult.data);
   if (!parsed.success) {
     return NextResponse.json({ error: "Dados de pedido inválidos." }, { status: 400 });
   }
@@ -57,28 +76,16 @@ export async function POST(req: NextRequest) {
     }
 
     const attempt = existing ? existing.attempt + 1 : 1;
-    // external_reference é validado pela Mercado Pago contra um padrão que não aceita ":" — só "-".
-    const externalReference = `${clientToken}-a${attempt}`;
-    const idempotencyKey = `pix-order:${clientToken}:${attempt}`;
+    const externalReference = buildExternalReference(clientToken, attempt);
+    const idempotencyKey = buildIdempotencyKey(clientToken, attempt);
 
     const order = new Order(client);
     const result = await order.create({
-      body: {
-        type: "online",
-        processing_mode: "automatic",
-        total_amount: PRICE_BRL.toFixed(2),
-        external_reference: externalReference,
-        payer: { email: payerEmail },
-        transactions: {
-          payments: [
-            {
-              amount: PRICE_BRL.toFixed(2),
-              payment_method: { id: "pix", type: "bank_transfer" },
-              expiration_time: env.MP_PIX_EXPIRATION,
-            },
-          ],
-        },
-      },
+      body: buildPixOrderPayload({
+        externalReference,
+        payerEmail,
+        expiration: env.MP_PIX_EXPIRATION,
+      }),
       requestOptions: { idempotencyKey },
     });
 

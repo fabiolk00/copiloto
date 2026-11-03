@@ -12,6 +12,9 @@
 
 # testing
 /coverage
+/harness/report
+/test-results
+/.security-tools
 
 # next.js
 /.next/

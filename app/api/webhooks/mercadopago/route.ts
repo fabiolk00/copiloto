@@ -1,26 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MercadoPagoConfig, Order, WebhookSignatureValidator, InvalidWebhookSignatureError } from "mercadopago";
 import { env } from "@/lib/env";
-import { getPedidoByMpOrderId, markPedidoStatus, recordWebhookEventOnce } from "@/lib/pedidos";
+import {
+  getPedidoByMpOrderId,
+  markPedidoStatus,
+  recordWebhookEventOnce,
+  scheduleWebhookReprocessing,
+} from "@/lib/pedidos";
+import { amountsMatch, mapMpPaymentStatus } from "@/lib/pix";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { readJsonWithLimit } from "@/lib/request-guards";
 
 const client = new MercadoPagoConfig({ accessToken: env.MP_ACCESS_TOKEN });
 
-// Confirmado contra a Orders API real: um Pix pago chega como status "processed" +
-// status_detail "accredited" — não "approved" (isso só é assim na Payments API).
-function mapPaymentStatus(
-  status: string | undefined,
-  statusDetail: string | undefined
-): "pago" | "falhou" | "cancelado" | null {
-  if (status === "approved" || (status === "processed" && statusDetail === "accredited")) {
-    return "pago";
-  }
-  if (status === "rejected") return "falhou";
-  if (status === "cancelled") return "cancelado";
-  // action_required / waiting_transfer / unknown — ainda não é um estado final.
-  return null;
-}
+const MAX_BODY_BYTES = 256 * 1024; // generoso para o payload real da Orders API, longe de um corpo "enorme"
+// Mais alto que o de /api/pix/create: é o endpoint que a própria Mercado
+// Pago chama (pode reentregar e rajar um pouco mais), não um usuário final.
+const RATE_LIMIT = { limit: env.MP_WEBHOOK_RATE_LIMIT, windowMs: 60_000 };
 
 export async function POST(req: NextRequest) {
+  // Corpo sem conteúdo em toda resposta deste endpoint, de propósito: é a
+  // Mercado Pago quem lê, e ela só olha o status HTTP.
+  const rateLimit = checkRateLimit(`mp-webhook:${getClientIp(req)}`, RATE_LIMIT.limit, RATE_LIMIT.windowMs);
+  if (!rateLimit.allowed) {
+    return new NextResponse(null, { status: 429, headers: { "Retry-After": String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)) } });
+  }
+
   const xSignature = req.headers.get("x-signature");
   const xRequestId = req.headers.get("x-request-id");
   const dataId = req.nextUrl.searchParams.get("data.id");
@@ -41,15 +46,25 @@ export async function POST(req: NextRequest) {
     throw err;
   }
 
-  const body = await req.json().catch(() => null);
+  const bodyResult = await readJsonWithLimit(req, MAX_BODY_BYTES);
+  if (!bodyResult.ok) return new NextResponse(null, { status: 413 });
+  const body = bodyResult.data as { type?: string; action?: string } | null;
   const type = body?.type as string | undefined;
+  // `data.id` é o id da ORDER e não muda ao longo de todo o ciclo de vida
+  // dela — ele por si só não distingue duas notificações diferentes sobre a
+  // mesma order (ex.: "criada" vs. "paga"). O corpo real documentado pela
+  // Mercado Pago não traz um id de notificação próprio; quem muda entre
+  // eventos distintos é o campo `action` (ex.: "order.created",
+  // "order.processed"). Uma redelivery de verdade reenvia a mesma `action`.
+  const action = (body?.action as string | undefined) ?? "unknown";
 
   if (!dataId || !type) {
     return new NextResponse(null, { status: 400 });
   }
 
   // Dedup: a mesma notificação pode ser reentregue pela Mercado Pago várias vezes.
-  const isNewEvent = await recordWebhookEventOnce(`${type}:${dataId}`, type, dataId);
+  const eventKey = `${type}:${dataId}:${action}`;
+  const isNewEvent = await recordWebhookEventOnce(eventKey, type, dataId);
   if (!isNewEvent) {
     return new NextResponse(null, { status: 200 });
   }
@@ -68,9 +83,23 @@ export async function POST(req: NextRequest) {
     return new NextResponse(null, { status: 200 });
   }
 
+  let result;
   try {
     const order = new Order(client);
-    const result = await order.get({ id: dataId });
+    result = await order.get({ id: dataId });
+  } catch (err) {
+    // GET falhou (rede, 5xx, order não encontrada na Mercado Pago). Devolvemos 200
+    // para a Mercado Pago não reentregar — o dedup acima já consumiu este evento —
+    // e agendamos reprocessamento para um worker tentar de novo mais tarde.
+    console.warn("[webhook] falha ao consultar order na Mercado Pago, agendando reprocessamento", {
+      mpOrderId: dataId,
+      error: String(err),
+    });
+    await scheduleWebhookReprocessing(eventKey, type, dataId, String(err));
+    return new NextResponse(null, { status: 200 });
+  }
+
+  try {
     const payment = result.transactions?.payments?.[0];
 
     const pedido = await getPedidoByMpOrderId(dataId);
@@ -79,7 +108,17 @@ export async function POST(req: NextRequest) {
       return new NextResponse(null, { status: 200 });
     }
 
-    const nextStatus = mapPaymentStatus(payment?.status, payment?.status_detail);
+    const nextStatus = mapMpPaymentStatus(payment?.status, payment?.status_detail);
+    if (nextStatus === "pago" && !amountsMatch(payment?.amount, pedido.amount)) {
+      console.error("[webhook] valor da order não corresponde ao pedido — pagamento não confirmado", {
+        pedidoId: pedido.id,
+        mpOrderId: dataId,
+        orderAmount: payment?.amount,
+        pedidoAmount: pedido.amount,
+      });
+      return new NextResponse(null, { status: 200 });
+    }
+
     if (nextStatus) {
       await markPedidoStatus(dataId, nextStatus);
       console.log("[webhook] pedido atualizado", { pedidoId: pedido.id, mpOrderId: dataId, status: nextStatus });
