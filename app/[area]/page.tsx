@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { BRAND_NAME, getAllSlugs, getAreaBySlug } from "@/lib/guias";
@@ -11,6 +10,8 @@ import IaSection from "@/components/venda/IaSection";
 import HonestSection from "@/components/venda/HonestSection";
 import FaqSection from "@/components/venda/FaqSection";
 import ClosingSection from "@/components/venda/ClosingSection";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbLd, pageMetadata, productLd } from "@/lib/seo";
 import { TrilhaProvider } from "@/components/venda/TrilhaProvider";
 
 export function generateStaticParams() {
@@ -25,10 +26,11 @@ export async function generateMetadata({
   const { area: slug } = await params;
   const area = getAreaBySlug(slug);
   if (!area) return {};
-  return {
+  return pageMetadata({
     title: `Guia de ${area.name} — ${BRAND_NAME}`,
     description: area.sub,
-  };
+    path: `/${area.slug}`,
+  });
 }
 
 export default async function VendaPage({
@@ -41,7 +43,16 @@ export default async function VendaPage({
   if (!area) notFound();
 
   return (
-    <Suspense fallback={null}>
+    <>
+    <JsonLd
+      data={[
+        productLd(area),
+        breadcrumbLd([
+          { name: BRAND_NAME, path: "/" },
+          { name: `Guia de ${area.name}`, path: `/${area.slug}` },
+        ]),
+      ]}
+    />
       <TrilhaProvider areaSlug={area.slug}>
         <Header />
         <main>
@@ -58,6 +69,6 @@ export default async function VendaPage({
           <ClosingSection area={area} />
         </main>
       </TrilhaProvider>
-    </Suspense>
+    </>
   );
 }
