@@ -30,7 +30,7 @@ export type Area = {
   faq1: [string, string];
 };
 
-export const BRAND_NAME = "Copiloto de Carreira";
+export const BRAND_NAME = "Copiloto Carreira";
 export const SUPPORT_EMAIL = "suporte@seudominio.com.br";
 /** Single fixed price for any guide/area, in BRL. Computed server-side only — never trust a price from the client. */
 export const PRICE_BRL = 29.9;

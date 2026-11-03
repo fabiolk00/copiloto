@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BRAND_NAME } from "@/lib/guias";
+import LogoSimbolo from "@/components/LogoSimbolo";
 
 const NAV_ITEMS = [
   { id: "guia", num: "01", label: "O guia" },
@@ -43,11 +44,9 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-10 bg-[#F5EFE6]/94 backdrop-blur-[8px] border-b border-[#E6DCCD]">
       <div className="max-w-[1200px] mx-auto h-[72px] px-10 flex items-center justify-between gap-6">
-        <Link href="/" className="flex items-center gap-2.5 text-[#2A2420] no-underline">
-          <span className="w-6 h-6 rounded-full border-[1.5px] border-[#2A2420] flex items-center justify-center">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#8C5E1E]" />
-          </span>
-          <span className="font-serif text-[22px]">{BRAND_NAME}</span>
+        <Link href="/" className="flex items-center gap-[9px] text-[#2A2420] no-underline">
+          <LogoSimbolo size={22} />
+          <span className="font-serif text-[19px] tracking-[-0.015em] whitespace-nowrap">{BRAND_NAME}</span>
         </Link>
 
         <nav className="hidden md:flex gap-7 text-[15px]">

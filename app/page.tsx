@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { AREAS, BRAND_NAME } from "@/lib/guias";
+import LogoSimbolo from "@/components/LogoSimbolo";
 
 export default function Home() {
   return (
     <main className="min-h-screen flex items-center justify-center px-10 py-24">
       <div className="max-w-[560px] flex flex-col gap-8 text-center">
-        <span className="font-serif text-[28px]">{BRAND_NAME}</span>
+        <span className="inline-flex items-center justify-center gap-[13px] text-[#2A2420]">
+          <LogoSimbolo size={43} />
+          <span className="font-serif text-[28px] tracking-[-0.015em] whitespace-nowrap">{BRAND_NAME}</span>
+        </span>
         <p className="m-0 text-lg leading-[1.6] text-[#4A403A]">
           Guias digitais por profissão, em três partes, com prompts de IA prontos para usar.
           Escolha a sua área para ver o guia completo.
