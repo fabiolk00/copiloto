@@ -13,7 +13,7 @@
  */
 import { sql } from "@/lib/db";
 import { env } from "@/lib/env";
-import { buildGuiaLink, renderGuiaEmail } from "@/lib/email-template";
+import { buildGuiaLink, buildLogoUrl, renderGuiaEmail } from "@/lib/email-template";
 import { hasHeaderInjection, maskEmail, sendEmailViaResend, type EmailSender } from "@/lib/email";
 
 export const MAX_TENTATIVAS = 6;
@@ -168,6 +168,7 @@ export async function processEmailQueue(opts: {
       areaSlug: claim.area_slug,
       trilha: claim.trilha,
       link: buildGuiaLink(appUrl, claim.client_token),
+      logoUrl: buildLogoUrl(appUrl),
     });
     const idempotencyKey =
       claim.email_reenvios > 0 ? `guia-reenvio/${claim.id}/${claim.email_reenvios}` : `guia-pago/${claim.id}`;

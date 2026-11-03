@@ -131,6 +131,7 @@ describe("envio", () => {
     expect(s.calls[0].to).toBe("p10@example.com");
     expect(s.calls[0].html).toContain(`${APP_URL}/api/orders/00000000-0000-4000-8000-000000000010/guia`);
     expect(s.calls[0].idempotencyKey).toBe(`guia-pago/${p.id}`);
+    expect(s.calls[0].html).toContain(`${APP_URL}/logo-email.png`);
   });
 
   it("dois workers ao mesmo tempo: o pedido é enviado uma única vez", async () => {

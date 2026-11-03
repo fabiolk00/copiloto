@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createHmac } from "node:crypto";
 import { backoffSegundos, BACKOFF_MINUTOS } from "@/lib/email-queue";
-import { buildGuiaLink, escapeHtml, renderGuiaEmail } from "@/lib/email-template";
+import { buildGuiaLink, buildLogoUrl, escapeHtml, renderGuiaEmail } from "@/lib/email-template";
 import { hasHeaderInjection, maskEmail } from "@/lib/email";
 import { verifyResendWebhook } from "@/lib/resend-signature";
 
@@ -135,6 +135,25 @@ describe("template do e-mail", () => {
     expect(html).toContain(link);
     expect(text).toContain(link);
     expect(html).toContain("Financeiro");
+  });
+
+  it("cabeçalho com o símbolo (PNG absoluto, tamanho fixo) e o nome da marca em texto", () => {
+    expect(buildLogoUrl("https://app.example.test/")).toBe("https://app.example.test/logo-email.png");
+    const { html } = renderGuiaEmail({
+      areaSlug: "financeiro",
+      trilha: "crescer",
+      link: "https://a.test/x",
+      logoUrl: buildLogoUrl("https://app.example.test"),
+    });
+    expect(html).toContain('<img src="https://app.example.test/logo-email.png" width="40" height="40" alt=""');
+    expect(html).toContain("Copiloto Carreira");
+    expect(html).not.toContain(".svg");
+  });
+
+  it("sem logoUrl: só o nome da marca, sem <img>", () => {
+    const { html } = renderGuiaEmail({ areaSlug: "financeiro", trilha: "crescer", link: "https://a.test/x" });
+    expect(html).not.toContain("<img");
+    expect(html).toContain("Copiloto Carreira");
   });
 
   it("área ou trilha fora da lista fechada nunca entram crus no corpo", () => {
