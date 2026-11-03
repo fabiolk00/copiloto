@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Newsreader, Instrument_Sans } from "next/font/google";
 import "./globals.css";
-import { BRAND_NAME } from "@/lib/guias";
+import { SEO_TITLE_HOME, siteOrigin } from "@/lib/seo";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -17,7 +17,8 @@ const instrumentSans = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  title: `${BRAND_NAME} — guias de carreira em PDF`,
+  metadataBase: new URL(siteOrigin()),
+  title: SEO_TITLE_HOME,
   description:
     "Guias digitais por profissão (Financeiro, Análise de Dados, Comercial) com etapas semanais e prompts de IA prontos para aplicar.",
 };

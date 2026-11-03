@@ -70,7 +70,7 @@ Se você quiser rodar sqlmap/semgrep/ZAP de verdade, a forma mais direta é via 
 
 **Nota sobre a assinatura**: o algoritmo do SDK (`WebhookSignatureValidator`) assina `id:{data.id};request-id;ts` — **não o corpo**. Isso é por design da Mercado Pago, não um bug deste projeto, e é exatamente por isso que "nunca confiar no payload, sempre reconsultar" (item pedido no modelo de ameaças) é a mitigação certa — e já estava implementada antes desta revisão.
 
-**XSS / troca do copia-e-cola no navegador**: `grep -rn "dangerouslySetInnerHTML|innerHTML"` em `app/`, `components/`, `lib/` → **zero ocorrências**. Toda renderização passa pelo escape automático do JSX; não há vetor de XSS armazenado/refletido via dados do pedido. CSP reforça isso como segunda camada (ver seção 6).
+**XSS / troca do copia-e-cola no navegador**: `grep -rn "dangerouslySetInnerHTML|innerHTML"` em `app/`, `components/`, `lib/` → **uma ocorrência intencional**: `components/seo/JsonLd.tsx` (JSON-LD de SEO, dados só de constantes do código, `<` escapado como `\u003c`; coberta por teste). Fora isso, zero. Toda renderização passa pelo escape automático do JSX; não há vetor de XSS armazenado/refletido via dados do pedido. CSP reforça isso como segunda camada (ver seção 6).
 
 **HTTPS/HSTS/cookies**: a app não usa cookies (sem contas de usuário). HTTPS é responsabilidade da camada de deploy (Vercel força HTTPS); `Strict-Transport-Security` foi adicionado em `next.config.ts` para quando isso acontecer.
 

@@ -1,11 +1,23 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { AREAS, BRAND_NAME } from "@/lib/guias";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { SEO_TITLE_HOME, organizationLd, pageMetadata, websiteLd } from "@/lib/seo";
+
+export const metadata: Metadata = pageMetadata({
+  title: SEO_TITLE_HOME,
+  description:
+    "Guias digitais por profissão (Financeiro, Análise de Dados, Comercial) com etapas semanais e prompts de IA prontos para aplicar.",
+  path: "/",
+});
 
 export default function Home() {
   return (
+    <>
+    <JsonLd data={[organizationLd(), websiteLd()]} />
     <main className="min-h-screen flex items-center justify-center px-10 py-24">
       <div className="max-w-[560px] flex flex-col gap-8 text-center">
-        <span className="font-serif text-[28px]">{BRAND_NAME}</span>
+        <h1 className="m-0 font-serif font-normal text-[28px]">{BRAND_NAME}</h1>
         <p className="m-0 text-lg leading-[1.6] text-[#4A403A]">
           Guias digitais por profissão, em três partes, com prompts de IA prontos para usar.
           Escolha a sua área para ver o guia completo.
@@ -24,5 +36,6 @@ export default function Home() {
         </div>
       </div>
     </main>
+    </>
   );
 }

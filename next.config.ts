@@ -8,7 +8,7 @@ import type { NextConfig } from "next";
  * não vale a troca. `script-src`/`style-src` precisam de 'unsafe-inline'
  * porque o payload de streaming do React Server Components do App Router
  * usa <script> inline — a defesa real contra XSS aqui é estrutural: nenhum
- * componente usa `dangerouslySetInnerHTML`/`innerHTML` (verificado), então
+ * componente usa `dangerouslySetInnerHTML`/`innerHTML` (exceto o JSON-LD de SEO em components/seo/JsonLd.tsx, com dados só de constantes), então
  * tudo que é renderizado passa pelo escape automático do JSX. O CSP abaixo
  * é defesa em profundidade para o resto (framing, embeds, mixed content).
  */
@@ -49,6 +49,8 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      // API não tem valor de busca; noindex via cabeçalho cobre o caso de URL linkada de fora.
+      { source: "/api/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
       {
         source: "/:path*",
         headers: SECURITY_HEADERS,
