@@ -45,13 +45,18 @@ export function TrilhaProvider({
   const trackedInitialRead = useRef(false);
 
   useEffect(() => {
-    if (isTrilha(paramTrilha) && paramTrilha !== trilha) {
-      setTrilhaState(paramTrilha);
-    }
-    if (isTrilha(paramTrilha) && !trackedInitialRead.current) {
-      trackedInitialRead.current = true;
-      track("select_trilha", { area: areaSlug, trilha: paramTrilha });
-    }
+    // Adiado para depois do commit do efeito (ver react-hooks/set-state-in-effect):
+    // setar estado de forma síncrona no corpo do efeito é o padrão que a
+    // regra aponta como causa de cascading renders.
+    queueMicrotask(() => {
+      if (isTrilha(paramTrilha) && paramTrilha !== trilha) {
+        setTrilhaState(paramTrilha);
+      }
+      if (isTrilha(paramTrilha) && !trackedInitialRead.current) {
+        trackedInitialRead.current = true;
+        track("select_trilha", { area: areaSlug, trilha: paramTrilha });
+      }
+    });
     // only react to the URL param changing, not to local selection state
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paramTrilha]);
