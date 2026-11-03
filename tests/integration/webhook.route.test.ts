@@ -125,6 +125,30 @@ describe("POST /api/webhooks/mercadopago", () => {
     expect(row.status).toBe("pago");
   });
 
+  it("assinatura calculada sobre o data.id em minúsculas, com o id em maiúsculas na URL, ainda confirma o pagamento", async () => {
+    orderGetMock.mockResolvedValueOnce(buildPixOrderGetResponsePaid());
+    const requestId = "req-minusculo";
+    const { xSignature } = buildSignatureHeader({ dataId: MP_ORDER_ID.toLowerCase(), requestId, secret: WEBHOOK_SECRET });
+
+    const { status } = await postWebhook({ action: "order.processed", requestId, signatureOverride: xSignature });
+
+    expect(status).toBe(200);
+    expect((await pedidoRow()).status).toBe("pago");
+    // A consulta à Mercado Pago usa o id original, com maiúsculas: a API diferencia.
+    expect(orderGetMock).toHaveBeenCalledWith({ id: MP_ORDER_ID });
+  });
+
+  it("assinatura de outro segredo continua recusada mesmo com id em maiúsculas (a variante minúscula não abre brecha)", async () => {
+    const requestId = "req-forjado";
+    const { xSignature } = buildSignatureHeader({ dataId: MP_ORDER_ID.toLowerCase(), requestId, secret: "segredo-do-atacante" });
+
+    const { status } = await postWebhook({ action: "order.processed", requestId, signatureOverride: xSignature });
+
+    expect(status).toBe(401);
+    expect(orderGetMock).not.toHaveBeenCalled();
+    expect((await pedidoRow()).status).toBe("pendente");
+  });
+
   it("assinatura ausente retorna 401 e não altera o banco", async () => {
     const { status } = await postWebhook({ skipSignature: true });
     expect(status).toBe(401);

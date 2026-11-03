@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { MercadoPagoConfig, Order, WebhookSignatureValidator, InvalidWebhookSignatureError } from "mercadopago";
+import { MercadoPagoConfig, Order } from "mercadopago";
+import { verifyMpWebhookSignature } from "@/lib/mp-signature";
 import { env } from "@/lib/env";
 import { markWebhookEventProcessed, recordWebhookEventOnce } from "@/lib/pedidos";
 import { applyMpOrder } from "@/lib/reconcile";
@@ -26,20 +27,23 @@ export async function POST(req: NextRequest) {
   const xRequestId = req.headers.get("x-request-id");
   const dataId = req.nextUrl.searchParams.get("data.id");
 
-  try {
-    WebhookSignatureValidator.validate({
-      xSignature,
-      xRequestId,
-      dataId,
-      secret: env.MP_WEBHOOK_SECRET,
-      toleranceSeconds: 300,
+  const signature = verifyMpWebhookSignature({
+    xSignature,
+    xRequestId,
+    dataId,
+    secret: env.MP_WEBHOOK_SECRET,
+  });
+  if (!signature.ok) {
+    console.warn("[webhook] assinatura inválida", {
+      reason: signature.reason,
+      requestId: xRequestId,
+      idComMaiusculas: signature.idComMaiusculas,
     });
-  } catch (err) {
-    if (err instanceof InvalidWebhookSignatureError) {
-      console.warn("[webhook] assinatura inválida", { reason: err.reason, requestId: xRequestId });
-      return new NextResponse(null, { status: 401 });
-    }
-    throw err;
+    return new NextResponse(null, { status: 401 });
+  }
+  if (signature.idVariant === "minusculo") {
+    // Diagnóstico: a Mercado Pago assinou com o data.id em minúsculas.
+    console.warn("[webhook] assinatura válida só com data.id em minúsculas", { requestId: xRequestId });
   }
 
   const bodyResult = await readJsonWithLimit(req, MAX_BODY_BYTES);
