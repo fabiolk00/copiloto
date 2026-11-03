@@ -207,28 +207,49 @@ describe("POST /api/webhooks/mercadopago", () => {
     expect(row.status).toBe("pendente");
   });
 
-  it("GET /v1/orders/{id} falhando responde 200 e agenda reprocessamento, sem marcar como pago", async () => {
+  it("GET /v1/orders/{id} falhando responde 500 para a Mercado Pago reentregar, sem marcar o evento como processado", async () => {
     orderGetMock.mockRejectedValueOnce(new Error("Mercado Pago está fora do ar"));
 
     const { status } = await postWebhook({ action: "order.processed" });
 
-    expect(status).toBe(200);
+    expect(status).toBe(500);
     expect((await pedidoRow()).status).toBe("pendente");
 
-    const [reprocess] = await sql`select * from pedido_webhook_reprocessamentos where data_id = ${MP_ORDER_ID}`;
-    expect(reprocess).toBeTruthy();
-    expect(reprocess.reason).toContain("fora do ar");
+    const [evento] = await sql`select processed_at from pedido_webhook_eventos where data_id = ${MP_ORDER_ID}`;
+    expect(evento).toBeTruthy();
+    expect(evento.processed_at).toBeNull();
   });
 
-  it("uma nova entrega (action diferente) depois de uma falha de GET ainda é processada — não fica travada pelo dedup", async () => {
+  it("depois de uma falha de GET, a reentrega da mesma notificação é aceita após a janela de 1 min e confirma o pagamento", async () => {
     orderGetMock.mockRejectedValueOnce(new Error("timeout"));
     const failed = await postWebhook({ action: "order.processed", requestId: "req-fail" });
-    expect(failed.status).toBe(200);
+    expect(failed.status).toBe(500);
+
+    // Reentrega imediata (dentro da janela): descartada como em andamento, sem consultar a API.
+    orderGetMock.mockResolvedValueOnce(buildPixOrderGetResponsePaid());
+    const tooSoon = await postWebhook({ action: "order.processed", requestId: "req-too-soon" });
+    expect(tooSoon.status).toBe(200);
+    expect(orderGetMock).toHaveBeenCalledTimes(1);
     expect((await pedidoRow()).status).toBe("pendente");
 
-    orderGetMock.mockResolvedValueOnce(buildPixOrderGetResponsePaid());
+    // Passada a janela, a mesma notificação é retomada e processada.
+    await sql`update pedido_webhook_eventos set received_at = now() - interval '2 minutes' where data_id = ${MP_ORDER_ID}`;
     const retried = await postWebhook({ action: "order.processed", requestId: "req-retry-2" });
     expect(retried.status).toBe(200);
+    expect((await pedidoRow()).status).toBe("pago");
+
+    const [evento] = await sql`select processed_at from pedido_webhook_eventos where data_id = ${MP_ORDER_ID}`;
+    expect(evento.processed_at).not.toBeNull();
+  });
+
+  it("evento já processado com sucesso continua bloqueando reentregas", async () => {
+    orderGetMock.mockResolvedValueOnce(buildPixOrderGetResponsePaid());
+    await postWebhook({ action: "order.processed", requestId: "req-ok-1" });
+    await sql`update pedido_webhook_eventos set received_at = now() - interval '2 hours' where data_id = ${MP_ORDER_ID}`;
+
+    const replay = await postWebhook({ action: "order.processed", requestId: "req-ok-2" });
+    expect(replay.status).toBe(200);
+    expect(orderGetMock).toHaveBeenCalledTimes(1);
   });
 
   it("corpo malformado (JSON inválido) é rejeitado com 400, sem exceção não tratada", async () => {

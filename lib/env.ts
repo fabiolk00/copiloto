@@ -29,6 +29,9 @@ const envSchema = z.object({
   // teste de ponta a ponta tropeçaria no limite pensado para abuso real.
   PIX_CREATE_RATE_LIMIT: z.coerce.number().int().positive().default(10),
   MP_WEBHOOK_RATE_LIMIT: z.coerce.number().int().positive().default(60),
+  // Segredo compartilhado com o pg_cron (Vault do Supabase) para autenticar a
+  // rota interna de reconciliação. Opcional: sem ele a rota fica desligada (404).
+  RECONCILE_SECRET: z.string().min(32, "RECONCILE_SECRET deve ter ao menos 32 caracteres").optional(),
 });
 
 // Falha rápido na inicialização do processo se alguma env obrigatória estiver ausente/inválida —
@@ -42,6 +45,7 @@ export const env = envSchema.parse({
   MP_API_BASE_URL: process.env.MP_API_BASE_URL,
   PIX_CREATE_RATE_LIMIT: process.env.PIX_CREATE_RATE_LIMIT,
   MP_WEBHOOK_RATE_LIMIT: process.env.MP_WEBHOOK_RATE_LIMIT,
+  RECONCILE_SECRET: process.env.RECONCILE_SECRET || undefined,
 });
 
 if (env.MP_API_BASE_URL) {

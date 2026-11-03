@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MercadoPagoConfig, Order, WebhookSignatureValidator, InvalidWebhookSignatureError } from "mercadopago";
 import { env } from "@/lib/env";
-import {
-  getPedidoByMpOrderId,
-  markPedidoStatus,
-  recordWebhookEventOnce,
-  scheduleWebhookReprocessing,
-} from "@/lib/pedidos";
-import { amountsMatch, mapMpPaymentStatus } from "@/lib/pix";
+import { markWebhookEventProcessed, recordWebhookEventOnce } from "@/lib/pedidos";
+import { applyMpOrder } from "@/lib/reconcile";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { readJsonWithLimit } from "@/lib/request-guards";
 
@@ -80,6 +75,7 @@ export async function POST(req: NextRequest) {
   // subscrição como "order" (singular) — sem nunca ter visto uma entrega real,
   // aceitamos as duas grafias em vez de arriscar descartar notificações reais.
   if (type !== "orders" && type !== "order") {
+    await markWebhookEventProcessed(eventKey);
     return new NextResponse(null, { status: 200 });
   }
 
@@ -88,42 +84,21 @@ export async function POST(req: NextRequest) {
     const order = new Order(client);
     result = await order.get({ id: dataId });
   } catch (err) {
-    // GET falhou (rede, 5xx, order não encontrada na Mercado Pago). Devolvemos 200
-    // para a Mercado Pago não reentregar — o dedup acima já consumiu este evento —
-    // e agendamos reprocessamento para um worker tentar de novo mais tarde.
-    console.warn("[webhook] falha ao consultar order na Mercado Pago, agendando reprocessamento", {
+    // GET falhou (rede, 5xx, order não encontrada na Mercado Pago). Respondemos 5xx
+    // para a Mercado Pago reentregar. O evento NÃO foi marcado como processado,
+    // então a reentrega é aceita (após a janela de 1 min de recordWebhookEventOnce).
+    // A reconciliação por pg_cron é a rede de segurança caso nenhuma reentrega chegue.
+    console.warn("[webhook] falha ao consultar order na Mercado Pago, aguardando reentrega", {
       mpOrderId: dataId,
       error: String(err),
     });
-    await scheduleWebhookReprocessing(eventKey, type, dataId, String(err));
-    return new NextResponse(null, { status: 200 });
+    return new NextResponse(null, { status: 500 });
   }
 
   try {
-    const payment = result.transactions?.payments?.[0];
-
-    const pedido = await getPedidoByMpOrderId(dataId);
-    if (!pedido) {
-      console.warn("[webhook] order sem pedido correspondente no banco", { mpOrderId: dataId });
-      return new NextResponse(null, { status: 200 });
-    }
-
-    const nextStatus = mapMpPaymentStatus(payment?.status, payment?.status_detail);
-    if (nextStatus === "pago" && !amountsMatch(payment?.amount, pedido.amount)) {
-      console.error("[webhook] valor da order não corresponde ao pedido — pagamento não confirmado", {
-        pedidoId: pedido.id,
-        mpOrderId: dataId,
-        orderAmount: payment?.amount,
-        pedidoAmount: pedido.amount,
-      });
-      return new NextResponse(null, { status: 200 });
-    }
-
-    if (nextStatus) {
-      await markPedidoStatus(dataId, nextStatus);
-      console.log("[webhook] pedido atualizado", { pedidoId: pedido.id, mpOrderId: dataId, status: nextStatus });
-    }
-
+    await applyMpOrder(dataId, result);
+    // Só aqui, depois de aplicar com sucesso, o evento passa a bloquear reentregas.
+    await markWebhookEventProcessed(eventKey);
     return new NextResponse(null, { status: 200 });
   } catch (err) {
     console.error("[webhook] falha ao processar notificação", { mpOrderId: dataId, error: String(err) });

@@ -45,7 +45,11 @@ export async function startTestDb(port: number): Promise<TestDbHandle> {
     .filter((f) => f.endsWith(".sql"))
     .sort();
   for (const file of files) {
-    await sql.unsafe(readFileSync(join(MIGRATIONS_DIR, file), "utf8"));
+    const ddl = readFileSync(join(MIGRATIONS_DIR, file), "utf8");
+    // Migrations que dependem de extensões do Supabase (pg_cron, pg_net, Vault)
+    // não rodam no PGlite; ficam marcadas com este comentário e são ignoradas aqui.
+    if (ddl.includes("-- @supabase-only")) continue;
+    await sql.unsafe(ddl);
   }
 
   (globalThis as Record<string, unknown>)[TEST_SQL_GLOBAL_KEY] = sql;

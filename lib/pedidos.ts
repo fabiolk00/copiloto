@@ -122,7 +122,16 @@ export async function markPedidoStatus(
   return row;
 }
 
-/** Returns `true` the first time this webhook event is seen, `false` on any redelivery. */
+/**
+ * Decide se esta notificação deve ser processada agora. Devolve `true` na
+ * primeira vez que o evento é visto, ou quando uma tentativa anterior NÃO foi
+ * concluída (processed_at nulo) e já passou a janela de 1 minuto; devolve
+ * `false` para um evento já processado ou ainda em andamento.
+ *
+ * A chave só bloqueia reentregas depois de `markWebhookEventProcessed`. Assim
+ * uma falha no meio do processamento não consome o evento: a Mercado Pago
+ * reenvia e a nova tentativa é aceita.
+ */
 export async function recordWebhookEventOnce(
   eventKey: string,
   type: string,
@@ -131,28 +140,40 @@ export async function recordWebhookEventOnce(
   const rows = await sql`
     insert into pedido_webhook_eventos (event_key, type, data_id)
     values (${eventKey}, ${type}, ${dataId})
-    on conflict (event_key) do nothing
+    on conflict (event_key) do update set received_at = now()
+      where pedido_webhook_eventos.processed_at is null
+        and pedido_webhook_eventos.received_at < now() - interval '1 minute'
     returning id
   `;
   return rows.length > 0;
 }
 
-/**
- * Registra uma notificação para reprocessamento posterior quando a consulta
- * à Orders API falhou (rede, 5xx, order não encontrada). Como o evento já
- * foi consumido por `recordWebhookEventOnce`, uma redelivery da Mercado Pago
- * não tentaria de novo sem este registro — um worker futuro (fora do escopo
- * daqui) é quem lê esta tabela e tenta de novo.
- */
-export async function scheduleWebhookReprocessing(
-  eventKey: string,
-  type: string,
-  dataId: string,
-  reason: string
-): Promise<void> {
+/** Marca o evento como concluído; a partir daqui, reentregas são descartadas como duplicadas. */
+export async function markWebhookEventProcessed(eventKey: string): Promise<void> {
   await sql`
-    insert into pedido_webhook_reprocessamentos (event_key, type, data_id, reason)
-    values (${eventKey}, ${type}, ${dataId}, ${reason})
-    on conflict (event_key) do nothing
+    update pedido_webhook_eventos set processed_at = now()
+    where event_key = ${eventKey} and processed_at is null
   `;
+}
+
+export type PedidoParaReconciliar = { id: number; mp_order_id: string; amount: string };
+
+/**
+ * Pedidos que a reconciliação deve conferir na Mercado Pago. O critério vive
+ * na view `pedidos_a_reconciliar` (migration), a mesma usada pelo disparo no
+ * banco, para app e pg_cron nunca divergirem.
+ */
+export async function getPedidosParaReconciliar(limit: number): Promise<PedidoParaReconciliar[]> {
+  return sql<PedidoParaReconciliar[]>`
+    select id, mp_order_id, amount
+    from pedidos_a_reconciliar
+    order by reconciliado_em asc nulls first, id asc
+    limit ${limit}
+  `;
+}
+
+/** Registra que estes pedidos foram conferidos agora, tenham mudado de status ou não. */
+export async function markPedidosReconciliados(ids: number[]): Promise<void> {
+  if (ids.length === 0) return;
+  await sql`update pedidos set reconciliado_em = now() where id in ${sql(ids)}`;
 }
