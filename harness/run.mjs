@@ -125,6 +125,9 @@ async function main() {
     MP_PIX_EXPIRATION: "PT25S",
     MP_API_BASE_URL: `http://127.0.0.1:${FAKE_MP_PORT}`,
     DATABASE_URL: db.url,
+    // Valores falsos: o harness não baixa PDF; só satisfazem a validação de lib/env.ts.
+    SUPABASE_URL: "https://harness.supabase.test",
+    SUPABASE_SERVICE_ROLE_KEY: "harness-chave-nao-real",
     APP_URL: `http://127.0.0.1:${APP_PORT}`,
     PORT: String(APP_PORT),
     NODE_ENV: "production",

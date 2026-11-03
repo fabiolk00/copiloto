@@ -53,6 +53,16 @@ describe("createSignedPdfUrl", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("a mensagem diz qual variável falta, sem imprimir valor", async () => {
+    const fetchMock = stubFetch({ ok: true });
+    delete process.env.SUPABASE_URL;
+    await expect(createSignedPdfUrl(ARQUIVO)).rejects.toThrow("SUPABASE_URL ausente");
+    process.env.SUPABASE_URL = "https://projeto.supabase.test/";
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    await expect(createSignedPdfUrl(ARQUIVO)).rejects.toThrow("SUPABASE_SERVICE_ROLE_KEY ausente");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("HTTP de erro: a mensagem leva só o código, não o corpo", async () => {
     stubFetch({ ok: false, status: 500, json: async () => ({ message: "detalhe interno" }) });
     const err = await createSignedPdfUrl(ARQUIVO).catch((e: Error) => e);

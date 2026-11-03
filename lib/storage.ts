@@ -49,9 +49,9 @@ export async function createSignedPdfUrl(objectPath: PdfObjectPath): Promise<str
 
   const supabaseUrl = process.env.SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !serviceKey) {
-    throw new Error("Storage não configurado: SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY ausente.");
-  }
+  // Mensagens separadas para o log dizer qual variável falta (nunca o valor).
+  if (!supabaseUrl) throw new Error("Storage não configurado: SUPABASE_URL ausente.");
+  if (!serviceKey) throw new Error("Storage não configurado: SUPABASE_SERVICE_ROLE_KEY ausente.");
 
   const base = supabaseUrl.replace(/\/+$/, "");
   const res = await fetch(`${base}/storage/v1/object/sign/${PDF_BUCKET}/${objectPath}`, {

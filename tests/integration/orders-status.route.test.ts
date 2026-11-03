@@ -38,6 +38,14 @@ beforeEach(async () => {
   `;
 });
 
+async function getHeaders(clientToken: string) {
+  const { GET } = await import("@/app/api/orders/[id]/status/route");
+  const res = await GET(new NextRequest(`http://localhost/api/orders/${clientToken}/status`), {
+    params: Promise.resolve({ id: clientToken }),
+  });
+  return { status: res.status, cacheControl: res.headers.get("cache-control") };
+}
+
 async function getStatus(clientToken: string) {
   const { GET } = await import("@/app/api/orders/[id]/status/route");
   const req = new NextRequest(`http://localhost/api/orders/${clientToken}/status`);
@@ -47,6 +55,11 @@ async function getStatus(clientToken: string) {
 }
 
 describe("GET /api/orders/:id/status", () => {
+  it("200 e 404 saem com Cache-Control: no-store", async () => {
+    expect(await getHeaders("owner-token")).toEqual({ status: 200, cacheControl: "no-store" });
+    expect(await getHeaders("token-inexistente")).toEqual({ status: 404, cacheControl: "no-store" });
+  });
+
   it("quem tem o client_token correto consulta o próprio status", async () => {
     const { status, json } = await getStatus("owner-token");
     expect(status).toBe(200);

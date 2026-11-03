@@ -19,6 +19,11 @@ const envSchema = z.object({
     )
     .default("PT30M"),
   DATABASE_URL: z.string().min(1, "DATABASE_URL é obrigatório"),
+  // Storage dos PDFs (lib/storage.ts, que lê as duas direto de process.env na
+  // hora de assinar). Validadas aqui só para falhar no boot/build, e não no
+  // download de quem já pagou. Nenhuma pode ter prefixo NEXT_PUBLIC_.
+  SUPABASE_URL: z.string().url("SUPABASE_URL deve ser uma URL (https://<ref>.supabase.co)"),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, "SUPABASE_SERVICE_ROLE_KEY é obrigatório"),
   APP_URL: z.string().optional(),
   // Só usado pelo harness E2E (harness/fake-mp) para redirecionar o SDK para o
   // fake local em vez da API real — nunca definido em produção.
@@ -41,6 +46,8 @@ export const env = envSchema.parse({
   MP_WEBHOOK_SECRET: process.env.MP_WEBHOOK_SECRET,
   MP_PIX_EXPIRATION: process.env.MP_PIX_EXPIRATION,
   DATABASE_URL: process.env.DATABASE_URL,
+  SUPABASE_URL: process.env.SUPABASE_URL,
+  SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   APP_URL: process.env.APP_URL,
   MP_API_BASE_URL: process.env.MP_API_BASE_URL,
   PIX_CREATE_RATE_LIMIT: process.env.PIX_CREATE_RATE_LIMIT,

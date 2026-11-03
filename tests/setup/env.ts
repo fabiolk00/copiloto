@@ -8,3 +8,5 @@ process.env.MP_WEBHOOK_SECRET ??= "test-webhook-secret";
 process.env.MP_PIX_EXPIRATION ??= "PT30M";
 process.env.DATABASE_URL ??= "postgres://unused:unused@127.0.0.1:5432/unused";
 process.env.APP_URL ??= "http://localhost:3000";
+process.env.SUPABASE_URL ??= "https://projeto.supabase.test";
+process.env.SUPABASE_SERVICE_ROLE_KEY ??= "chave-de-teste-nao-real";
