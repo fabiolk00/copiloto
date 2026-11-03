@@ -26,7 +26,8 @@ const RATE_LIMIT = { keyPrefix: "pix-create", limit: env.PIX_CREATE_RATE_LIMIT, 
 
 const bodySchema = z.object({
   area: z.string().min(1),
-  trilha: z.enum(["crescer", "mudar"]).nullable().optional(),
+  // Obrigatória: sem trilha não há arquivo de guia para entregar.
+  trilha: z.enum(["crescer", "mudar"]),
   payerEmail: z.string().email(),
   // Gerado pelo navegador no primeiro clique; identifica este pedido sem expor um ID sequencial.
   clientToken: z.string().uuid(),
@@ -63,9 +64,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Este pedido já foi pago." }, { status: 409 });
     }
 
-    // Replay do mesmo pedido ainda dentro da validade: devolve o Pix já gerado,
-    // sem criar uma nova order na Mercado Pago.
+    // Pix pendente ainda válido: só é reaproveitado se a escolha for a mesma.
+    // Trocar de área ou trilha com um código em aberto deixaria esse código
+    // pagável para um pedido que entregaria outro guia.
     if (existing && existing.status === "pendente" && !isExpired(existing)) {
+      if (existing.area_slug !== area.slug || existing.trilha !== trilha) {
+        return NextResponse.json(
+          { error: "Você já tem um Pix em aberto com outra escolha. Aguarde a expiração ou conclua esse pagamento." },
+          { status: 409 }
+        );
+      }
       return NextResponse.json({
         pedidoId: existing.client_token,
         qrCode: existing.qr_code,
@@ -109,6 +117,8 @@ export async function POST(req: NextRequest) {
     const pedido = existing
       ? await savePixAttempt({
           id: existing.id,
+          areaSlug: area.slug,
+          trilha,
           attempt,
           externalReference,
           mpOrderId,
@@ -122,12 +132,14 @@ export async function POST(req: NextRequest) {
             clientToken,
             externalReference,
             areaSlug: area.slug,
-            trilha: trilha ?? null,
+            trilha,
             payerEmail,
             amount: PRICE_BRL,
           });
           return savePixAttempt({
             id: created.id,
+            areaSlug: area.slug,
+            trilha,
             attempt,
             externalReference,
             mpOrderId,

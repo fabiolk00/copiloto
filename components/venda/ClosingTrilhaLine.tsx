@@ -11,7 +11,7 @@ export default function ClosingTrilhaLine({ area }: { area: Area }) {
       ? "Sua trilha: crescer onde está. A etapa III leva você até a conversa de carreira com a sua liderança."
       : trilha === "mudar"
         ? "Sua trilha: mudar de empresa. A etapa III prepara currículo, entrevistas e a escolha da próxima vaga."
-        : "Ainda não sabe se quer crescer onde está ou mudar de empresa? Tudo bem. As duas trilhas estão no guia.";
+        : "Escolha uma trilha acima para liberar o seu guia. As duas trilhas estão no material.";
 
   return (
     <p

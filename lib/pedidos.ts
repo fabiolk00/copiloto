@@ -51,6 +51,8 @@ export async function insertPedido(params: {
 /** Overwrites the current Pix attempt in place — only the latest attempt's code is ever payable. */
 export async function savePixAttempt(params: {
   id: number;
+  areaSlug: string;
+  trilha: "crescer" | "mudar";
   attempt: number;
   externalReference: string;
   mpOrderId: string;
@@ -59,8 +61,11 @@ export async function savePixAttempt(params: {
   ticketUrl: string | null;
   expiresAt: Date;
 }): Promise<Pedido> {
+  // area e trilha entram na nova tentativa: a entrega usa sempre a escolha da última tentativa.
   const [row] = await sql<Pedido[]>`
     update pedidos set
+      area_slug = ${params.areaSlug},
+      trilha = ${params.trilha},
       attempt = ${params.attempt},
       external_reference = ${params.externalReference},
       mp_order_id = ${params.mpOrderId},

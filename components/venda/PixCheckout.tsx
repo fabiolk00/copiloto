@@ -222,6 +222,19 @@ export default function PixCheckout({
   };
 
   if (step === "idle") {
+    // Sem trilha escolhida o pedido não pode ser entregue: o botao fica bloqueado até a escolha.
+    if (!trilha) {
+      return (
+        <>
+          <button type="button" disabled className={className}>
+            {children}
+          </button>
+          <span className="mt-2 block text-center text-sm text-[#645950]">
+            Escolha uma trilha acima para liberar o guia.
+          </span>
+        </>
+      );
+    }
     return (
       <button type="button" onClick={handleStart} className={className}>
         {children}

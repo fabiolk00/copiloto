@@ -127,7 +127,7 @@ describe("mass assignment: o cliente não controla preço, recebedor nem referê
 
     // JSON.parse nativo já colapsa chaves duplicadas na última — simulamos
     // isso diretamente (não há como representar chave duplicada em um objeto JS).
-    const rawBody = `{"area":"financeiro","payerEmail":"primeiro@example.com","payerEmail":"comprador@example.com","clientToken":"${clientToken}"}`;
+    const rawBody = `{"area":"financeiro","trilha":"crescer","payerEmail":"primeiro@example.com","payerEmail":"comprador@example.com","clientToken":"${clientToken}"}`;
     const { POST } = await import("@/app/api/pix/create/route");
     const req = new NextRequest("http://localhost/api/pix/create", {
       method: "POST",
@@ -164,6 +164,7 @@ describe("um Pix pago para a order X não libera o pedido Y", () => {
     orderCreateMock.mockResolvedValueOnce(buildPixOrderCreateResponse({ id: "ORD-VICTIM" }));
     await postPixCreate({
       area: "financeiro",
+      trilha: "crescer",
       payerEmail: "vitima@example.com",
       clientToken: "66666666-6666-4666-8666-666666666666",
     });
@@ -171,6 +172,7 @@ describe("um Pix pago para a order X não libera o pedido Y", () => {
     orderCreateMock.mockResolvedValueOnce(buildPixOrderCreateResponse({ id: "ORD-ATTACKER" }));
     const { json: attackerJson } = await postPixCreate({
       area: "financeiro",
+      trilha: "crescer",
       payerEmail: "atacante@example.com",
       clientToken: "77777777-7777-4777-8777-777777777777",
     });

@@ -92,7 +92,7 @@ describe("segredos nunca aparecem em respostas HTTP", () => {
     const req = new NextRequest("http://localhost/api/pix/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ area: "financeiro", payerEmail: "a@example.com", clientToken: crypto.randomUUID() }),
+      body: JSON.stringify({ area: "financeiro", trilha: "crescer", payerEmail: "a@example.com", clientToken: crypto.randomUUID() }),
     });
     const res = await POST(req);
     const text = await res.text();
@@ -106,7 +106,7 @@ describe("segredos nunca aparecem em respostas HTTP", () => {
     const req = new NextRequest("http://localhost/api/pix/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ area: "financeiro", payerEmail: "a@example.com", clientToken: crypto.randomUUID() }),
+      body: JSON.stringify({ area: "financeiro", trilha: "crescer", payerEmail: "a@example.com", clientToken: crypto.randomUUID() }),
     });
     const res = await POST(req);
     const text = await res.text();
@@ -137,7 +137,7 @@ describe("segredos e PII não aparecem em logs do servidor", () => {
       const req = new NextRequest("http://localhost/api/pix/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ area: "financeiro", payerEmail: "naologa@example.com", clientToken: crypto.randomUUID() }),
+        body: JSON.stringify({ area: "financeiro", trilha: "crescer", payerEmail: "naologa@example.com", clientToken: crypto.randomUUID() }),
       });
       await POST(req);
     });

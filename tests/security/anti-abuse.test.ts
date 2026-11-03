@@ -71,7 +71,7 @@ describe("rate limit em /api/pix/create", () => {
     const statuses: number[] = [];
     for (let i = 0; i < 15; i++) {
       const res = await postPixCreate(
-        { area: "financeiro", payerEmail: `cliente${i}@example.com`, clientToken: crypto.randomUUID() },
+        { area: "financeiro", trilha: "crescer", payerEmail: `cliente${i}@example.com`, clientToken: crypto.randomUUID() },
         ip
       );
       statuses.push(res.status);
@@ -86,10 +86,10 @@ describe("rate limit em /api/pix/create", () => {
   it("não afeta outro IP tentando o fluxo legítimo", async () => {
     orderCreateMock.mockImplementation(async () => buildPixOrderCreateResponse({ id: `ORD-${Math.random()}` }));
     for (let i = 0; i < 10; i++) {
-      await postPixCreate({ area: "financeiro", payerEmail: `flood${i}@example.com`, clientToken: crypto.randomUUID() }, "203.0.113.9");
+      await postPixCreate({ area: "financeiro", trilha: "crescer", payerEmail: `flood${i}@example.com`, clientToken: crypto.randomUUID() }, "203.0.113.9");
     }
     const res = await postPixCreate(
-      { area: "financeiro", payerEmail: "legitimo@example.com", clientToken: crypto.randomUUID() },
+      { area: "financeiro", trilha: "crescer", payerEmail: "legitimo@example.com", clientToken: crypto.randomUUID() },
       "203.0.113.200"
     );
     expect(res.status).toBe(200);
@@ -103,7 +103,7 @@ describe("idempotência sob concorrência: o mesmo pedido nunca gera duas orders
 
     await Promise.all(
       Array.from({ length: 10 }, (_, i) =>
-        postPixCreate({ area: "financeiro", payerEmail: "concorrente@example.com", clientToken }, `192.0.2.${i}`)
+        postPixCreate({ area: "financeiro", trilha: "crescer", payerEmail: "concorrente@example.com", clientToken }, `192.0.2.${i}`)
       )
     );
 

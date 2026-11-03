@@ -66,7 +66,7 @@ export default function TrilhaSelector({ area }: { area: Area }) {
       <span className="text-sm text-[#645950]">
         {trilha
           ? "Você pode mudar de ideia a qualquer momento. O guia traz as duas trilhas."
-          : "Opcional. O guia traz as duas trilhas; a escolha só destaca a sua etapa III."}
+          : "Escolha uma trilha para liberar o guia. O guia traz as duas trilhas; a escolha define a sua etapa III."}
       </span>
     </div>
   );

@@ -114,7 +114,7 @@ describe("IDOR — POST /api/pix/create", () => {
     const req = new NextRequest("http://localhost/api/pix/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ area: "financeiro", payerEmail: "atacante@evil.com", clientToken: USER_A_TOKEN }),
+      body: JSON.stringify({ area: "financeiro", trilha: "crescer", payerEmail: "atacante@evil.com", clientToken: USER_A_TOKEN }),
     });
     await POST(req);
 
@@ -131,7 +131,7 @@ describe("IDOR — POST /api/pix/create", () => {
     const req = new NextRequest("http://localhost/api/pix/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ area: "financeiro", payerEmail: "usuario.b@example.com", clientToken: USER_B_TOKEN }),
+      body: JSON.stringify({ area: "financeiro", trilha: "crescer", payerEmail: "usuario.b@example.com", clientToken: USER_B_TOKEN }),
     });
     await POST(req);
 
