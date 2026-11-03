@@ -91,6 +91,7 @@ export default function PixCheckout({
   const [pix, setPix] = useState<PixData | null>(null);
   const [remainingMs, setRemainingMs] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [resend, setResend] = useState<"idle" | "sending" | "sent" | "limit" | "error">("idle");
 
   const createPix = useCallback(async () => {
     setStep("loading");
@@ -189,6 +190,19 @@ export default function PixCheckout({
   const handleStart = () => {
     track("click_cta", { area, trilha: trilha ?? undefined, posicao: "closing" });
     setStep("email");
+  };
+
+  const handleResend = async () => {
+    if (!pix || resend === "sending") return;
+    setResend("sending");
+    try {
+      const res = await fetch(`/api/orders/${pix.pedidoId}/reenviar`, { method: "POST", cache: "no-store" });
+      if (res.status === 202) setResend("sent");
+      else if (res.status === 429 || res.status === 409) setResend("limit");
+      else setResend("error");
+    } catch {
+      setResend("error");
+    }
   };
 
   const handleEmailSubmit = (e: React.FormEvent) => {
@@ -307,6 +321,29 @@ export default function PixCheckout({
         <p className="text-sm text-[#4A403A]">
           O PDF do guia de {areaName} chega no seu e-mail em poucos minutos.
         </p>
+        {pix && (
+          <div className="flex flex-col gap-2 items-center mt-2">
+            <a
+              href={`/api/orders/${pix.pedidoId}/guia`}
+              className="rounded-lg bg-[#2B2420] px-4 py-2 text-sm text-white"
+            >
+              Baixar o guia agora
+            </a>
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={resend === "sending" || resend === "sent"}
+              className="text-sm underline text-[#4A403A] disabled:opacity-60"
+            >
+              Reenviar e-mail
+            </button>
+            {resend === "sent" && <p className="text-xs text-[#4A403A]">Pedimos o reenvio. Confira também o spam.</p>}
+            {resend === "limit" && (
+              <p className="text-xs text-[#4A403A]">Não é possível reenviar agora. Use o botão para baixar o guia.</p>
+            )}
+            {resend === "error" && <p className="text-xs text-[#4A403A]">Não foi possível reenviar agora. Tente de novo em instantes.</p>}
+          </div>
+        )}
       </div>
     );
   }

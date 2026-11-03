@@ -117,6 +117,7 @@ export async function POST(req: NextRequest) {
     const pedido = existing
       ? await savePixAttempt({
           id: existing.id,
+          payerEmail,
           areaSlug: area.slug,
           trilha,
           attempt,
@@ -138,6 +139,7 @@ export async function POST(req: NextRequest) {
           });
           return savePixAttempt({
             id: created.id,
+            payerEmail,
             areaSlug: area.slug,
             trilha,
             attempt,
@@ -149,6 +151,11 @@ export async function POST(req: NextRequest) {
             expiresAt,
           });
         })();
+
+    if (!pedido) {
+      // O pedido foi pago entre a leitura e a gravação desta tentativa.
+      return NextResponse.json({ error: "Este pedido já foi pago." }, { status: 409 });
+    }
 
     console.log("[pix] pedido criado", { pedidoId: pedido.id, mpOrderId: pedido.mp_order_id, attempt });
 

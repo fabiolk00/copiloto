@@ -37,6 +37,13 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
+// A rota agora também processa a fila de e-mail; estes testes olham só a parte de reconciliação.
+function semEmail(json: Record<string, unknown>) {
+  const { email: _email, ...resto } = json;
+  void _email;
+  return resto;
+}
+
 const PORT = 55612;
 let sql: postgres.Sql;
 let db: PGlite;
@@ -138,7 +145,7 @@ describe("POST /api/internal/reconcile — reconciliação", () => {
     const { status: st, json } = await chamar();
 
     expect(st).toBe(200);
-    expect(json).toEqual({ checked: 1, updated: 1, errors: 0 });
+    expect(semEmail(json)).toEqual({ checked: 1, updated: 1, errors: 0 });
     expect(await status("pago")).toBe("pago");
     expect(orderGetMock).toHaveBeenCalledWith({ id: "ORD-0001" });
   });
@@ -159,7 +166,7 @@ describe("POST /api/internal/reconcile — reconciliação", () => {
 
     const { json } = await chamar();
 
-    expect(json).toEqual({ checked: 1, updated: 0, errors: 0 });
+    expect(semEmail(json)).toEqual({ checked: 1, updated: 0, errors: 0 });
     expect(await status("pend")).toBe("pendente");
     const [row] = await sql`select reconciliado_em from pedidos where client_token = 'pend'`;
     expect(row.reconciliado_em).not.toBeNull();
@@ -183,7 +190,7 @@ describe("POST /api/internal/reconcile — reconciliação", () => {
     const { status: st, json } = await chamar();
 
     expect(st).toBe(200);
-    expect(json).toEqual({ checked: 2, updated: 1, errors: 1, errorStatuses: { sem_status: 1 } });
+    expect(semEmail(json)).toEqual({ checked: 2, updated: 1, errors: 1, errorStatuses: { sem_status: 1 } });
     expect(await status("falha")).toBe("pendente");
     expect(await status("ok")).toBe("pago");
   });
@@ -199,7 +206,7 @@ describe("POST /api/internal/reconcile — reconciliação", () => {
 
     const { json } = await chamar();
 
-    expect(json).toEqual({ checked: 3, updated: 0, errors: 3, errorStatuses: { "401": 1, "404": 2 } });
+    expect(semEmail(json)).toEqual({ checked: 3, updated: 0, errors: 3, errorStatuses: { "401": 1, "404": 2 } });
   });
 
   it("a resposta de erro não contém token, URL nem id de pedido", async () => {
@@ -228,7 +235,7 @@ describe("POST /api/internal/reconcile — reconciliação", () => {
     await chamar();
     const again = await chamar();
 
-    expect(again.json).toEqual({ checked: 0, updated: 0, errors: 0 });
+    expect(semEmail(again.json)).toEqual({ checked: 0, updated: 0, errors: 0 });
     expect(orderGetMock).toHaveBeenCalledTimes(1);
   });
 
@@ -236,7 +243,9 @@ describe("POST /api/internal/reconcile — reconciliação", () => {
     await inserirPedido({ token: "priv", mpOrderId: "ORD-0001" });
     orderGetMock.mockResolvedValueOnce(buildPixOrderGetResponsePaid());
     const { json } = await chamar();
-    expect(Object.keys(json).sort()).toEqual(["checked", "errors", "updated"]);
+    expect(Object.keys(json).sort()).toEqual(["checked", "email", "errors", "updated"]);
+    // O bloco de e-mail também traz só contagens.
+    expect(Object.values(json.email as Record<string, unknown>).every((v) => typeof v === "number" || typeof v === "string")).toBe(true);
   });
 });
 

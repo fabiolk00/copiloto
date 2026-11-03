@@ -22,6 +22,8 @@ export type Pedido = {
   updated_at: string;
 };
 
+export type EmailStatus = "pendente" | "enviando" | "enviado" | "entregue" | "rejeitado" | "falhou";
+
 export async function getPedidoByClientToken(clientToken: string): Promise<Pedido | undefined> {
   const [row] = await sql<Pedido[]>`
     select * from pedidos where client_token = ${clientToken} limit 1
@@ -48,9 +50,16 @@ export async function insertPedido(params: {
   return row;
 }
 
-/** Overwrites the current Pix attempt in place — only the latest attempt's code is ever payable. */
+/**
+ * Overwrites the current Pix attempt in place — only the latest attempt's code is ever payable.
+ *
+ * Nunca mexe em pedido `pago` (devolve `undefined`): um pagamento que chegou
+ * entre a leitura do pedido e este UPDATE não pode ser revertido para
+ * `pendente`, e o e-mail do pagador não muda depois de pago.
+ */
 export async function savePixAttempt(params: {
   id: number;
+  payerEmail: string;
   areaSlug: string;
   trilha: "crescer" | "mudar";
   attempt: number;
@@ -60,10 +69,12 @@ export async function savePixAttempt(params: {
   qrCodeBase64: string | null;
   ticketUrl: string | null;
   expiresAt: Date;
-}): Promise<Pedido> {
+}): Promise<Pedido | undefined> {
   // area e trilha entram na nova tentativa: a entrega usa sempre a escolha da última tentativa.
+  // payer_email também: é para onde o guia vai, e a pessoa pode ter corrigido o e-mail.
   const [row] = await sql<Pedido[]>`
     update pedidos set
+      payer_email = ${params.payerEmail},
       area_slug = ${params.areaSlug},
       trilha = ${params.trilha},
       attempt = ${params.attempt},
@@ -74,7 +85,7 @@ export async function savePixAttempt(params: {
       ticket_url = ${params.ticketUrl},
       expires_at = ${params.expiresAt.toISOString()},
       status = 'pendente'
-    where id = ${params.id}
+    where id = ${params.id} and status <> 'pago'
     returning *
   `;
   return row;
@@ -119,8 +130,20 @@ export async function markPedidoStatus(
   mpOrderId: string,
   status: PedidoStatus
 ): Promise<Pedido | undefined> {
+  // Fila do e-mail na MESMA instrução da transição para `pago`: não existe
+  // passo separado nem janela entre "pago" e "na fila". Só enfileira quando
+  // ainda não há estado de e-mail (nunca reabre um e-mail já tratado).
   const [row] = await sql<Pedido[]>`
-    update pedidos set status = ${status}
+    update pedidos set
+      status = ${status},
+      email_status = case
+        when ${status}::text = 'pago' and email_status is null then 'pendente'
+        else email_status
+      end,
+      email_proxima_tentativa = case
+        when ${status}::text = 'pago' and email_status is null then now()
+        else email_proxima_tentativa
+      end
     where mp_order_id = ${mpOrderId}
       and (status = 'pendente' or (status = 'expirado' and ${status}::text = 'pago'))
     returning *

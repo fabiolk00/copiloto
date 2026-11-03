@@ -6,6 +6,7 @@ import { getPedidosParaReconciliar, markPedidosReconciliados } from "@/lib/pedid
 import { applyMpOrder } from "@/lib/reconcile";
 import { describeMpError } from "@/lib/mp-error";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { processEmailQueue, type EmailRunSummary } from "@/lib/email-queue";
 
 const client = new MercadoPagoConfig({ accessToken: env.MP_ACCESS_TOKEN });
 
@@ -44,53 +45,68 @@ export async function POST(req: NextRequest) {
     return new NextResponse(null, { status: 429 });
   }
 
+  // Duas tarefas independentes no mesmo disparo do cron: conferir Pix pendentes
+  // e enviar e-mails da fila. Uma falhar não pode impedir a outra.
+  let reconcile: { checked: number; updated: number; errors: number; errorStatuses?: Record<string, number> };
   try {
-    const pedidos = await getPedidosParaReconciliar(BATCH_SIZE);
-    if (pedidos.length === 0) {
-      return NextResponse.json({ checked: 0, updated: 0, errors: 0 }, { headers: { "Cache-Control": "no-store" } });
-    }
-
-    const order = new Order(client);
-    const results = await Promise.allSettled(
-      pedidos.map(async (p) => {
-        const mpOrder = await order.get({ id: p.mp_order_id });
-        return applyMpOrder(p.mp_order_id, mpOrder);
-      })
-    );
-
-    // Marca todos como conferidos agora (inclusive os que falharam), para o
-    // critério da view dar um respiro de 30 s antes de tentar de novo.
-    await markPedidosReconciliados(pedidos.map((p) => p.id));
-
-    let updated = 0;
-    let errors = 0;
-    // Quantos erros por código HTTP da Mercado Pago ("401", "404", "sem_status"...).
-    // Vai na resposta (visível em net._http_response no Supabase) para diagnosticar
-    // sem depender dos logs do Vercel. Só contagens, sem dados de pedido.
-    const errorStatuses = new Map<string, number>();
-    for (const r of results) {
-      if (r.status === "rejected") {
-        errors += 1;
-        const detail = describeMpError(r.reason);
-        const key = String(detail.status ?? "sem_status");
-        errorStatuses.set(key, (errorStatuses.get(key) ?? 0) + 1);
-        console.warn("[reconcile] falha ao conferir order", detail);
-      } else if (r.value === "atualizado") {
-        updated += 1;
-      }
-    }
-
-    return NextResponse.json(
-      {
-        checked: pedidos.length,
-        updated,
-        errors,
-        ...(errors > 0 ? { errorStatuses: Object.fromEntries(errorStatuses) } : {}),
-      },
-      { headers: { "Cache-Control": "no-store" } }
-    );
+    reconcile = await reconciliar();
   } catch (err) {
     console.error("[reconcile] falha inesperada", err instanceof Error ? err.message : "erro desconhecido");
-    return new NextResponse(null, { status: 500 });
+    reconcile = { checked: 0, updated: 0, errors: 1 };
   }
+
+  // Pedidos que acabaram de virar `pago` nesta mesma execução já entram na fila.
+  let email: EmailRunSummary | { erro: true };
+  try {
+    email = await processEmailQueue();
+  } catch (err) {
+    console.error("[email] falha inesperada na fila", err instanceof Error ? err.message : "erro desconhecido");
+    email = { erro: true };
+  }
+
+  return NextResponse.json({ ...reconcile, email }, { headers: { "Cache-Control": "no-store" } });
+}
+
+async function reconciliar() {
+  const pedidos = await getPedidosParaReconciliar(BATCH_SIZE);
+  if (pedidos.length === 0) {
+    return { checked: 0, updated: 0, errors: 0 };
+  }
+
+  const order = new Order(client);
+  const results = await Promise.allSettled(
+    pedidos.map(async (p) => {
+      const mpOrder = await order.get({ id: p.mp_order_id });
+      return applyMpOrder(p.mp_order_id, mpOrder);
+    })
+  );
+
+  // Marca todos como conferidos agora (inclusive os que falharam), para o
+  // critério da view dar um respiro de 30 s antes de tentar de novo.
+  await markPedidosReconciliados(pedidos.map((p) => p.id));
+
+  let updated = 0;
+  let errors = 0;
+  // Quantos erros por código HTTP da Mercado Pago ("401", "404", "sem_status"...).
+  // Vai na resposta (visível em net._http_response no Supabase) para diagnosticar
+  // sem depender dos logs do Vercel. Só contagens, sem dados de pedido.
+  const errorStatuses = new Map<string, number>();
+  for (const r of results) {
+    if (r.status === "rejected") {
+      errors += 1;
+      const detail = describeMpError(r.reason);
+      const key = String(detail.status ?? "sem_status");
+      errorStatuses.set(key, (errorStatuses.get(key) ?? 0) + 1);
+      console.warn("[reconcile] falha ao conferir order", detail);
+    } else if (r.value === "atualizado") {
+      updated += 1;
+    }
+  }
+
+  return {
+    checked: pedidos.length,
+    updated,
+    errors,
+    ...(errors > 0 ? { errorStatuses: Object.fromEntries(errorStatuses) } : {}),
+  };
 }

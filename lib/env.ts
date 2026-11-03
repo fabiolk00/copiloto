@@ -37,6 +37,16 @@ const envSchema = z.object({
   // Segredo compartilhado com o pg_cron (Vault do Supabase) para autenticar a
   // rota interna de reconciliação. Opcional: sem ele a rota fica desligada (404).
   RECONCILE_SECRET: z.string().min(32, "RECONCILE_SECRET deve ter ao menos 32 caracteres").optional(),
+  // E-mail do guia (Resend). Opcionais de propósito: sem elas o app sobe e o
+  // worker de e-mail trata como erro de configuração (pausa, alerta, não
+  // consome tentativa). A chave só precisa da permissão de envio.
+  RESEND_API_KEY: z.string().min(1).optional(),
+  // Segredo do webhook do Resend (formato whsec_...). Sem ele a rota responde 404.
+  RESEND_WEBHOOK_SECRET: z.string().min(1).optional(),
+  // Remetente fixo no servidor, ex.: "Copiloto Carreira <guia@envio.seudominio.com.br>".
+  EMAIL_FROM: z.string().min(3).optional(),
+  // Teto de envios por execução do cron (1x/min). Não fixa o limite do Resend.
+  EMAIL_BATCH_SIZE: z.coerce.number().int().positive().max(50).default(5),
 });
 
 // Falha rápido na inicialização do processo se alguma env obrigatória estiver ausente/inválida —
@@ -53,6 +63,10 @@ export const env = envSchema.parse({
   PIX_CREATE_RATE_LIMIT: process.env.PIX_CREATE_RATE_LIMIT,
   MP_WEBHOOK_RATE_LIMIT: process.env.MP_WEBHOOK_RATE_LIMIT,
   RECONCILE_SECRET: process.env.RECONCILE_SECRET || undefined,
+  RESEND_API_KEY: process.env.RESEND_API_KEY || undefined,
+  RESEND_WEBHOOK_SECRET: process.env.RESEND_WEBHOOK_SECRET || undefined,
+  EMAIL_FROM: process.env.EMAIL_FROM || undefined,
+  EMAIL_BATCH_SIZE: process.env.EMAIL_BATCH_SIZE || undefined,
 });
 
 if (env.MP_API_BASE_URL) {

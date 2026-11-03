@@ -215,6 +215,37 @@ describe("<PixCheckout />", () => {
     vi.useRealTimers();
   });
 
+  it("tela de pago: link para baixar agora e botão de reenviar e-mail (POST, sem corpo)", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const user = userEvent.setup({ delay: null });
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockFetchOnce(PIX_RESPONSE));
+
+    render(
+      <PixCheckout area="financeiro" areaName="Financeiro">
+        Gerar Pix
+      </PixCheckout>
+    );
+    await fillEmailAndSubmit(user);
+    await screen.findByAltText(/qr code pix/i);
+
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockFetchOnce({ status: "pago" }));
+    await vi.advanceTimersByTimeAsync(5000);
+    await screen.findByRole("status");
+
+    const link = screen.getByRole("link", { name: /baixar o guia agora/i });
+    expect(link.getAttribute("href")).toBe(`/api/orders/${PIX_RESPONSE.pedidoId}/guia`);
+
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ ok: true, status: 202, json: () => Promise.resolve({ ok: true }) });
+    await user.click(screen.getByRole("button", { name: /reenviar e-mail/i }));
+    const [url, init] = (fetch as ReturnType<typeof vi.fn>).mock.calls.at(-1)!;
+    expect(url).toBe(`/api/orders/${PIX_RESPONSE.pedidoId}/reenviar`);
+    expect(init.method).toBe("POST");
+    expect(init.body).toBeUndefined();
+    expect(await screen.findByText(/pedimos o reenvio/i)).toBeInTheDocument();
+
+    vi.useRealTimers();
+  });
+
   it("o polling para quando o status muda para 'expirado'", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     const user = userEvent.setup({ delay: null });
