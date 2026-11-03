@@ -17,6 +17,46 @@ type PixData = {
 const POLL_MIN_MS = 5_000;
 const POLL_MAX_MS = 30_000;
 
+const SESSION_STORAGE_KEY = "pix-checkout-session";
+
+type PersistedSession = { clientToken: string; email: string };
+
+/**
+ * Sobrevive a um F5 na mesma aba (mas não a uma aba nova) enquanto o Pix
+ * ainda está pendente — sem isto, um reload trocaria o clientToken e o
+ * servidor nunca saberia que já existe uma order em aberto para este pedido.
+ */
+function readPersistedSession(): PersistedSession | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<PersistedSession>;
+    if (typeof parsed.clientToken === "string" && typeof parsed.email === "string") {
+      return { clientToken: parsed.clientToken, email: parsed.email };
+    }
+  } catch {
+    // sessionStorage indisponível (modo privado) ou valor corrompido — segue sem recuperar nada.
+  }
+  return null;
+}
+
+function persistSession(session: PersistedSession) {
+  try {
+    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+  } catch {
+    // armazenamento indisponível — só significa que um refresh não vai recuperar o Pix atual.
+  }
+}
+
+function clearPersistedSession() {
+  try {
+    sessionStorage.removeItem(SESSION_STORAGE_KEY);
+  } catch {
+    // nada a fazer.
+  }
+}
+
 function emailLooksValid(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
@@ -40,10 +80,13 @@ export default function PixCheckout({
   children: React.ReactNode;
 }) {
   const { trilha } = useTrilha();
-  const [clientToken] = useState(() => crypto.randomUUID());
+  const [clientToken] = useState(() => readPersistedSession()?.clientToken ?? crypto.randomUUID());
+  // Captura, só na primeira renderização, se este mount começa retomando uma
+  // sessão de uma aba que já tinha um Pix pendente (ver efeito de retomada abaixo).
+  const [isResuming] = useState(() => readPersistedSession() !== null);
 
-  const [step, setStep] = useState<Step>("idle");
-  const [email, setEmail] = useState("");
+  const [step, setStep] = useState<Step>(() => (readPersistedSession() ? "loading" : "idle"));
+  const [email, setEmail] = useState(() => readPersistedSession()?.email ?? "");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [pix, setPix] = useState<PixData | null>(null);
   const [remainingMs, setRemainingMs] = useState(0);
@@ -68,11 +111,29 @@ export default function PixCheckout({
 
       setPix(data);
       setStep("waiting");
+      persistSession({ clientToken, email });
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Não foi possível gerar o Pix.");
       setStep("error");
     }
   }, [area, email, trilha, clientToken]);
+
+  // Retomada após F5: se a aba já tinha um clientToken salvo, repete a
+  // mesma chamada de criação — o servidor reconhece o pedido pendente e
+  // devolve o Pix já existente em vez de criar uma nova order (ver o branch
+  // de replay em app/api/pix/create/route.ts), então o usuário não perde o
+  // QR Code nem gera cobrança duplicada só por ter recarregado a página.
+  useEffect(() => {
+    if (!isResuming) return;
+    // Adia para depois do commit do efeito: `createPix` seta estado já na
+    // primeira linha (`setStep("loading")`), e chamar isso de forma síncrona
+    // dentro do corpo do efeito é exatamente o que a regra
+    // react-hooks/set-state-in-effect aponta como causa de cascading renders.
+    queueMicrotask(() => {
+      void createPix();
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Countdown — drives the UI independently of the backend poll, so expiry
   // feedback is instant instead of waiting for the next 5s tick.
@@ -103,6 +164,7 @@ export default function PixCheckout({
 
         if (data.status === "pago") {
           setStep("paid");
+          clearPersistedSession();
           return;
         }
         if (data.status === "expirado" || data.status === "cancelado" || data.status === "falhou") {
