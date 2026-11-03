@@ -107,8 +107,13 @@ export async function getPedidoByMpOrderId(mpOrderId: string): Promise<Pedido | 
 }
 
 /**
- * Transitions a pedido out of `pendente` only. A replayed/duplicate webhook
- * for an already-settled pedido matches zero rows and is a safe no-op.
+ * Transitions a pedido out of `pendente`. A replayed/duplicate webhook for an
+ * already-settled pedido matches zero rows and is a safe no-op.
+ *
+ * Única exceção: `expirado` -> `pago`. O job de expiração marca como expirado
+ * por relógio, e um pagamento confirmado pela Mercado Pago depois disso (webhook
+ * atrasado) precisa vencer a expiração, senão a pessoa paga e não recebe o
+ * guia. Nenhum outro status sai de `expirado`, e `pago` nunca é revertido.
  */
 export async function markPedidoStatus(
   mpOrderId: string,
@@ -116,7 +121,8 @@ export async function markPedidoStatus(
 ): Promise<Pedido | undefined> {
   const [row] = await sql<Pedido[]>`
     update pedidos set status = ${status}
-    where mp_order_id = ${mpOrderId} and status = 'pendente'
+    where mp_order_id = ${mpOrderId}
+      and (status = 'pendente' or (status = 'expirado' and ${status}::text = 'pago'))
     returning *
   `;
   return row;

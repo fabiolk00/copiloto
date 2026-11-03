@@ -20,7 +20,7 @@ vi.mock("@/lib/storage", async (importOriginal) => {
   return { ...real, createSignedPdfUrl: (path: string) => signMock(path) };
 });
 
-const PORT = 55604;
+const PORT = 55610;
 let sql: postgres.Sql;
 let db: PGlite;
 let server: PGLiteSocketServer;

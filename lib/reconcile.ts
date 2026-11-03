@@ -39,9 +39,13 @@ export async function applyMpOrder(mpOrderId: string, order: OrderLike): Promise
   }
 
   if (nextStatus) {
-    await markPedidoStatus(mpOrderId, nextStatus);
-    console.log("[webhook] pedido atualizado", { pedidoId: pedido.id, mpOrderId, status: nextStatus });
-    return "atualizado";
+    // `markPedidoStatus` devolve a linha só se a transição foi permitida; um
+    // replay ou uma transição vetada (ex.: cancelado sobre expirado) não muda nada.
+    const changed = await markPedidoStatus(mpOrderId, nextStatus);
+    if (changed) {
+      console.log("[webhook] pedido atualizado", { pedidoId: pedido.id, mpOrderId, status: nextStatus });
+      return "atualizado";
+    }
   }
 
   return "sem_mudanca";

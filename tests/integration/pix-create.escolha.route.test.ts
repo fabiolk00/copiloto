@@ -28,7 +28,7 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
-const PORT = 55605;
+const PORT = 55611;
 let sql: postgres.Sql;
 let db: PGlite;
 let server: PGLiteSocketServer;
