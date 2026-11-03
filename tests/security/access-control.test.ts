@@ -159,7 +159,7 @@ describe("não existem endpoints de debug/admin expostos", () => {
     expect(definedRoutes).not.toContain(path);
   });
 
-  it("as únicas rotas de API existentes são exatamente as 3 esperadas (nenhuma rota de debug foi adicionada sem querer)", async () => {
+  it("as únicas rotas de API existentes são exatamente as 4 esperadas (nenhuma rota de debug foi adicionada sem querer)", async () => {
     const fs = await import("node:fs");
     const definedRoutes = fs
       .readdirSync("app/api", { recursive: true })
@@ -168,7 +168,12 @@ describe("não existem endpoints de debug/admin expostos", () => {
       .sort();
 
     expect(definedRoutes).toEqual(
-      ["orders/[id]/status/route.ts", "pix/create/route.ts", "webhooks/mercadopago/route.ts"].sort()
+      [
+        "orders/[id]/download/route.ts",
+        "orders/[id]/status/route.ts",
+        "pix/create/route.ts",
+        "webhooks/mercadopago/route.ts",
+      ].sort()
     );
   });
 });

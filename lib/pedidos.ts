@@ -84,6 +84,16 @@ export async function getPedidoStatusByClientToken(
   return row;
 }
 
+/** Campos mínimos para decidir a entrega do guia. Não traz dados do pagador nem do Pix. */
+export async function getPedidoEntregaByClientToken(
+  clientToken: string
+): Promise<Pick<Pedido, "status" | "area_slug" | "trilha"> | undefined> {
+  const [row] = await sql<Pick<Pedido, "status" | "area_slug" | "trilha">[]>`
+    select status, area_slug, trilha from pedidos where client_token = ${clientToken} limit 1
+  `;
+  return row;
+}
+
 export async function getPedidoByMpOrderId(mpOrderId: string): Promise<Pedido | undefined> {
   const [row] = await sql<Pedido[]>`
     select * from pedidos where mp_order_id = ${mpOrderId} limit 1
