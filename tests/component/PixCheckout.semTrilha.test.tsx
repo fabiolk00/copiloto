@@ -4,6 +4,9 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import PixCheckout from "@/components/venda/PixCheckout";
 
+const push = vi.hoisted(() => vi.fn());
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+
 vi.mock("@/components/venda/TrilhaProvider", () => ({
   useTrilha: () => ({ trilha: null, setTrilha: vi.fn() }),
 }));

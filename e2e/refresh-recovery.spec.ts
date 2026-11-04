@@ -22,5 +22,6 @@ test("refresh durante o pagamento: o Pix atual é recuperado, não gera outro", 
 
   // Confirma que a sessão recuperada ainda funciona de ponta a ponta.
   await fakeMp.pay(beforeReload.mp_order_id!);
-  await expect(page.getByRole("status")).toContainText(/pagamento aprovado/i, { timeout: 20_000 });
+  await expect(page).toHaveURL(/\/obrigado\?area=/, { timeout: 20_000 });
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/seu guia está a caminho/i);
 });

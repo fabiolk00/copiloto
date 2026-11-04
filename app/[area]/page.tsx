@@ -12,6 +12,7 @@ import FaqSection from "@/components/venda/FaqSection";
 import ClosingSection from "@/components/venda/ClosingSection";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbLd, pageMetadata, productLd } from "@/lib/seo";
+import StickyBuyBar from "@/components/venda/StickyBuyBar";
 import { TrilhaProvider } from "@/components/venda/TrilhaProvider";
 
 export function generateStaticParams() {
@@ -55,7 +56,7 @@ export default async function VendaPage({
     />
       <TrilhaProvider areaSlug={area.slug}>
         <Header />
-        <main>
+        <main className="max-md:overflow-x-clip">
           <Hero area={area} />
           <BonusAndTestimonials />
           <div className="relative max-w-[1200px] mx-auto px-10">
@@ -68,6 +69,7 @@ export default async function VendaPage({
           <FaqSection area={area} />
           <ClosingSection area={area} />
         </main>
+        <StickyBuyBar area={area.slug} />
       </TrilhaProvider>
     </>
   );

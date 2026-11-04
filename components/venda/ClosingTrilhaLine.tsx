@@ -15,7 +15,7 @@ export default function ClosingTrilhaLine({ area }: { area: Area }) {
 
   return (
     <p
-      className="m-0 px-[18px] py-4 rounded-2xl text-base leading-[1.55] text-[#2A2420]"
+      className="m-0 px-4 md:px-[18px] py-3 md:py-4 rounded-[14px] md:rounded-2xl text-[13px] md:text-base leading-[1.5] md:leading-[1.55] text-[#2A2420]"
       style={{ background: area.tint }}
     >
       {text}

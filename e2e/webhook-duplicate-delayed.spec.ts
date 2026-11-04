@@ -10,7 +10,8 @@ test("webhook duplicado e atrasado: estado final correto, efeito colateral uma v
   // simula atraso de rede + reentrega da Mercado Pago na mesma tacada.
   await fakeMp.pay(pedido.mp_order_id!, { delayMs: 1_500, duplicateCount: 2 });
 
-  await expect(page.getByRole("status")).toContainText(/pagamento aprovado/i, { timeout: 20_000 });
+  await expect(page).toHaveURL(/\/obrigado\?area=/, { timeout: 20_000 });
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/seu guia está a caminho/i);
 
   const updated = await db.getByClientToken(clientToken);
   expect(updated?.status).toBe("pago");
