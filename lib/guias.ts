@@ -31,7 +31,7 @@ export type Area = {
 };
 
 export const BRAND_NAME = "Copiloto Carreira";
-export const SUPPORT_EMAIL = "suporte@seudominio.com.br";
+export const SUPPORT_EMAIL = "fabio.kro@outlook.com";
 /** Single fixed price for any guide/area, in BRL. Computed server-side only — never trust a price from the client. */
 export const PRICE_BRL = 29.9;
 
@@ -242,13 +242,21 @@ export function getAllSlugs(): string[] {
 export const PART_NAMES = ["Parar de correr", "Escolher o que importa", "Dar o próximo passo"];
 export const PART_WEEKS = ["semanas 1–2", "semanas 3–5", "semanas 6–8"];
 
-export const PDF_PAGES: { title: string; ph: string }[] = [
-  { title: "Capa", ph: "capa" },
-  { title: "Sumário", ph: "sumário" },
-  { title: "Abertura de etapa", ph: "abertura da parte I" },
-  { title: "Página de reflexão", ph: "reflexão" },
-  { title: "Página de exercício", ph: "exercício" },
+/** Páginas reais do PDF mostradas na galeria. Arquivo: /previews/{pasta}-p{n}.jpg (ver PREVIEW_PASTA). */
+export const PDF_PAGES = [
+  { n: "01", title: "A capa" },
+  { n: "07", title: "A abertura de cada etapa" },
+  { n: "08", title: "O diagnóstico" },
+  { n: "10", title: "Os cartões de ação" },
+  { n: "18", title: "O banco de prompts" },
 ];
+
+/** Slug da área -> prefixo dos arquivos em public/previews (a área de dados usa "dados"). */
+export const PREVIEW_PASTA: Record<string, string> = {
+  financeiro: "financeiro",
+  "analise-de-dados": "dados",
+  comercial: "comercial",
+};
 
 export const GUARANTEES = ["Acesso imediato, por e-mail", "Acesso permanente ao PDF"];
 

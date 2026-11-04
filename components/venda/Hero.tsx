@@ -1,7 +1,9 @@
-import { BRAND_NAME, type Area } from "@/lib/guias";
+import type { Area } from "@/lib/guias";
+import CapaLivro from "./CapaLivro";
 import CtaLink from "./CtaLink";
-import HeroSub from "./HeroSub";
 import TrilhaSelector from "./TrilhaSelector";
+
+const CHIPS_IA = ["IA no seu trabalho", "IA no seu currículo", "Prompts prontos"];
 
 export default function Hero({ area }: { area: Area }) {
   return (
@@ -12,14 +14,33 @@ export default function Hero({ area }: { area: Area }) {
           style={{ color: area.ct }}
         >
           <span className="w-2 h-2 rounded-full" style={{ background: area.c }} />
-          Guia digital · {area.name}
+          Guia digital · {area.name} · com IA
         </span>
 
         <h1 className="m-0 font-serif font-normal text-[60px] leading-[1.04] tracking-[-.025em] text-pretty">
           {area.h1}
         </h1>
 
-        <HeroSub area={area} />
+        <div className="rounded-2xl bg-[#2F2925] text-[#F5EFE6] p-[18px] md:px-[22px] md:py-5 flex gap-3.5 items-start">
+          <span aria-hidden="true" className="font-serif text-[26px] md:text-[30px] leading-none text-[#E0B97A]">
+            ✦
+          </span>
+          <div className="flex flex-col gap-3.5">
+            <p className="m-0 font-serif text-xl md:text-2xl leading-[1.3]">
+              Vou mudar o jeito que você entende a IA e a aplica no seu trabalho e no seu currículo.
+            </p>
+            <ul className="m-0 p-0 list-none flex flex-wrap gap-2">
+              {CHIPS_IA.map((chip) => (
+                <li
+                  key={chip}
+                  className="px-3 py-[5px] rounded-full border border-[#6A5E55] text-sm text-[#E8DFD3]"
+                >
+                  {chip}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
 
         <TrilhaSelector area={area} />
 
@@ -39,28 +60,7 @@ export default function Hero({ area }: { area: Area }) {
       </div>
 
       <div className="flex justify-center">
-        <div
-          className="aspect-[3/4] w-[380px] rounded-[6px_16px_16px_6px] shadow-[0_1px_2px_rgba(60,40,20,.08),0_30px_60px_rgba(60,40,20,.16)] p-9 px-[30px] flex flex-col justify-between border-l-8 rotate-[1.5deg]"
-          style={{ background: area.tint, borderColor: area.c }}
-        >
-          <div
-            className="flex justify-between text-xs tracking-[.12em] uppercase"
-            style={{ color: area.ct }}
-          >
-            <span>Guia {area.roman}</span>
-            <span>{BRAND_NAME}</span>
-          </div>
-          <div className="flex flex-col gap-3.5">
-            <span className="font-serif text-[42px] leading-[1.02]">
-              Carreira em {area.name}
-            </span>
-            <span className="w-10 h-px" style={{ background: area.c }} />
-            <span className="text-[15px] leading-[1.5] text-[#4A403A]">
-              Três partes, uma etapa por vez, com a IA como aliada.
-            </span>
-          </div>
-          <span className="font-mono text-[11px] text-[#7A6E64]">[mockup da capa real]</span>
-        </div>
+        <CapaLivro area={area} />
       </div>
     </div>
   );

@@ -57,7 +57,7 @@ export default async function VendaPage({
         <Header />
         <main>
           <Hero area={area} />
-          <BonusAndTestimonials area={area} />
+          <BonusAndTestimonials />
           <div className="relative max-w-[1200px] mx-auto px-10">
             <span className="hidden md:block pointer-events-none absolute left-[69px] top-0 bottom-0 w-px bg-[#DCCFBD]" />
             <GuiaSection area={area} />

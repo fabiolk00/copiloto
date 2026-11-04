@@ -5,7 +5,7 @@ import PixCheckout from "./PixCheckout";
 export default function ClosingSection({ area }: { area: Area }) {
   return (
     <div id="fechamento" className="px-10 pt-10 pb-[120px] flex justify-center">
-      <div className="w-full max-w-[880px] bg-[#FBF8F2] border border-[#E2D8C9] rounded-[28px] p-14 md:px-16 grid grid-cols-1 md:grid-cols-2 gap-14 shadow-[0_1px_2px_rgba(60,40,20,.04),0_16px_40px_rgba(60,40,20,.07)]">
+      <div className="w-full max-w-[1040px] bg-[#FBF8F2] border border-[#E2D8C9] rounded-[28px] p-16 md:px-[72px] grid grid-cols-1 md:grid-cols-[1.1fr_1fr] gap-16 items-center shadow-[0_1px_2px_rgba(60,40,20,.04),0_16px_40px_rgba(60,40,20,.07)]">
         <div className="flex flex-col gap-5">
           <span
             className="inline-flex items-center gap-2 text-[13px] tracking-[.1em] uppercase"
@@ -17,8 +17,8 @@ export default function ClosingSection({ area }: { area: Area }) {
           <h2 className="m-0 font-serif font-normal text-[40px] leading-[1.1] tracking-[-.02em]">
             Comece pela parte I esta semana.
           </h2>
-          <div className="flex items-baseline gap-2.5">
-            <span className="font-serif text-[56px] leading-none tracking-[-.02em]">
+          <div className="flex flex-wrap items-baseline gap-2.5">
+            <span className="font-serif text-[56px] leading-none tracking-[-.02em] whitespace-nowrap">
               R$ 29,90
             </span>
             <span className="text-[15px] text-[#645950]">pagamento único</span>

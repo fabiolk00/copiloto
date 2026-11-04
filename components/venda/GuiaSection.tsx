@@ -1,4 +1,5 @@
-import { PDF_PAGES, type Area } from "@/lib/guias";
+import Image from "next/image";
+import { PDF_PAGES, PREVIEW_PASTA, type Area } from "@/lib/guias";
 
 export default function GuiaSection({ area }: { area: Area }) {
   const gives = [
@@ -39,29 +40,25 @@ export default function GuiaSection({ area }: { area: Area }) {
         </div>
 
         <div className="no-scrollbar flex gap-5 overflow-x-auto snap-x snap-mandatory py-3 pr-10 pb-4">
-          {PDF_PAGES.map((p, i) => (
-            <div
-              key={p.title}
-              className="flex-none w-[230px] snap-start flex flex-col gap-2.5"
+          {PDF_PAGES.map((p) => (
+            <figure
+              key={p.n}
+              className="flex-none w-[230px] md:w-[250px] snap-start m-0 flex flex-col items-center gap-3.5"
             >
-              <div
-                className="aspect-[3/4] rounded-lg border border-[#E2D8C9] shadow-[0_8px_20px_rgba(60,40,20,.08)] flex items-end p-3"
-                style={{
-                  background:
-                    "repeating-linear-gradient(135deg,#FBF8F2 0 8px,#F1E9DD 8px 16px)",
-                }}
-              >
-                <span className="font-mono text-[11px] text-[#645950]">
-                  [página do PDF · {p.ph}]
-                </span>
+              <div className="w-full bg-[#FBF8F2] border border-[#E2D8C9] rounded-2xl p-4">
+                <Image
+                  src={`/previews/${PREVIEW_PASTA[area.slug]}-p${p.n}.jpg`}
+                  width={480}
+                  height={600}
+                  alt={`Página ${Number(p.n)} do guia de ${area.name}: ${p.title}`}
+                  sizes="250px"
+                  className="w-full aspect-[4/5] object-cover rounded-lg shadow-[0_1px_2px_rgba(60,40,20,.08),0_6px_16px_rgba(60,40,20,.10)]"
+                />
               </div>
-              <span className="text-sm text-[#4A403A]">
-                {String(i + 1).padStart(2, "0")} · {p.title}
-              </span>
-            </div>
+              <figcaption className="text-[15px] text-[#4A403A] text-center">{p.title}</figcaption>
+            </figure>
           ))}
         </div>
-        <span className="text-sm text-[#645950]">Deslize para ver mais páginas →</span>
       </div>
     </div>
   );

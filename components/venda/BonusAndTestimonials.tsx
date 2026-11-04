@@ -1,47 +1,122 @@
-import type { Area } from "@/lib/guias";
+import Image from "next/image";
+import { BRAND_NAME } from "@/lib/guias";
 
-export default function BonusAndTestimonials({ area }: { area: Area }) {
+type DepoimentoImagem = {
+  tipo: "imagem";
+  src: string;
+  largura: number;
+  altura: number;
+  alt: string;
+  legenda: string;
+  /** Só aparece na página com `true`. */
+  confirmado: boolean;
+};
+
+type DepoimentoTexto = {
+  tipo: "texto";
+  titulo: string;
+  texto: string;
+  nome: string;
+  cargo: string;
+  avatar: { src: string; alt: string };
+  confirmado: boolean;
+};
+
+/** Depoimentos exibidos, na ordem. `confirmado: true` esconde um item sem apagá-lo. */
+const DEPOIMENTOS: (DepoimentoImagem | DepoimentoTexto)[] = [
+  {
+    tipo: "imagem",
+    src: "/depoimentos/felipe.png",
+    largura: 428,
+    altura: 220,
+    alt: "Mensagem de Felipe Piva: conseguiu 3 novas entrevistas depois de seguir o passo a passo do site.",
+    legenda: "Mensagem recebida · Felipe Piva",
+    confirmado: true,
+  },
+  {
+    tipo: "texto",
+    titulo: "Fui escolhido para uma vaga interna",
+    texto:
+      "Eu não entendia por que não avançava nas vagas internas da minha empresa. Depois que o Copiloto Carreira ajustou meu currículo, comecei a chamar atenção em processos internos e externos. Me candidatei a uma vaga interna e fui escolhido.",
+    nome: "Matheus Bólico",
+    cargo: "Cientista de Dados",
+    avatar: { src: "/depoimentos/matheus.png", alt: "Foto de Matheus Bólico" },
+    confirmado: true,
+  },
+  {
+    tipo: "imagem",
+    src: "/depoimentos/mensagem-curriculo.png",
+    largura: 421,
+    altura: 235,
+    alt: "Mensagem de uma pessoa (nome e foto ocultados): depois de reestruturar o currículo, percebeu mais visibilidade e recrutadores entrando em contato.",
+    legenda: "Mensagem recebida · nome e foto ocultados",
+    confirmado: true,
+  },
+  {
+    tipo: "imagem",
+    src: "/depoimentos/mensagem-linkedin.png",
+    largura: 419,
+    altura: 98,
+    alt: "Mensagem de uma pessoa (nome e foto ocultados): a pontuação no LinkedIn melhorou e chegou a 83.",
+    legenda: "Mensagem recebida · nome e foto ocultados",
+    confirmado: true,
+  },
+];
+
+const CARD =
+  "flex-[1_1_300px] max-w-[520px] bg-[#FBF8F2] border border-[#E2D8C9] rounded-[20px]";
+
+export default function BonusAndTestimonials() {
+  const visiveis = DEPOIMENTOS.filter((d) => d.confirmado);
+
   return (
-    <div className="max-w-[1200px] mx-auto px-10 pb-20 grid grid-cols-1 md:grid-cols-[1fr_1.6fr] gap-6">
-      <div className="border border-[#E2D8C9] rounded-[20px] bg-[#FBF8F2] p-7 flex flex-col gap-4">
-        <span className="text-[13px] tracking-[.08em] uppercase text-[#645950]">
-          Complemento opcional
+    <div className="max-w-[1200px] mx-auto px-10 pb-20 grid grid-cols-1 gap-6">
+      <div className="flex flex-col gap-3.5">
+        <span className="self-start inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#2F2925] text-[#F5EFE6] text-[13px] font-semibold tracking-[.12em] uppercase">
+          <span aria-hidden="true" className="w-2 h-2 rounded-full bg-[#E0B97A]" />
+          Relatos reais
         </span>
-        <div className="flex gap-[18px]">
-          <span
-            className="flex-none w-[60px] h-[76px] rounded-sm border border-[#E2D8C9]"
-            style={{
-              background:
-                "repeating-linear-gradient(135deg,#EDE4D6 0 6px,#E4D9C9 6px 12px)",
-            }}
-          />
-          <div className="flex flex-col gap-1.5">
-            <span className="font-serif text-[22px] leading-[1.2]">{area.bonus}</span>
-            <span className="text-base leading-[1.55] text-[#4A403A]">{area.bonusD}</span>
-          </div>
-        </div>
-        <div className="flex items-center justify-between mt-auto">
-          <span className="text-[15px] text-[#4A403A]">+ R$ 29,90</span>
-          <button
-            type="button"
-            className="min-h-11 px-[18px] rounded-xl border-[1.5px] border-[#2A2420] bg-transparent text-[#2A2420] text-[15px] font-semibold cursor-pointer hover:bg-[#2A2420] hover:text-[#FBF8F2]"
-          >
-            Adicionar ao pedido
-          </button>
-        </div>
+        <h2 className="m-0 font-serif font-normal text-[32px] leading-[1.15] tracking-[-.015em] text-pretty">
+          Mensagens de quem já usou o {BRAND_NAME}
+        </h2>
       </div>
 
-      <div className="flex flex-col gap-3.5">
-        <span className="text-[13px] tracking-[.08em] uppercase text-[#645950]">
-          Relatos de quem usou
-        </span>
-        <div className="flex-1 border-[1.5px] border-dashed border-[#C9BBA8] rounded-[20px] p-7 flex flex-col justify-center gap-2.5 bg-[#FBF8F2]/50">
-          <span className="font-serif text-2xl">Os primeiros relatos ainda estão chegando.</span>
-          <span className="text-base text-[#4A403A]">
-            Preferimos mostrar este espaço vazio a inventar depoimentos.
-          </span>
-          <span className="font-mono text-[13px] text-[#7A6E64]">[inserir depoimento real]</span>
-        </div>
+      <div className="flex flex-wrap gap-4 items-start">
+        {visiveis.map((d) =>
+          d.tipo === "imagem" ? (
+            <figure key={d.src} className={`${CARD} m-0 p-4 flex flex-col gap-2.5`}>
+              <Image
+                src={d.src}
+                width={d.largura}
+                height={d.altura}
+                alt={d.alt}
+                sizes="(max-width: 640px) 100vw, 520px"
+                className="w-full h-auto rounded-[10px] border border-[#EDE4D6] bg-white"
+              />
+              <figcaption className="text-[13px] text-[#645950]">{d.legenda}</figcaption>
+            </figure>
+          ) : (
+            <figure key={d.nome} className={`${CARD} m-0 p-6 flex flex-col gap-4`}>
+              <blockquote className="m-0 flex flex-col gap-4">
+                <p className="m-0 font-serif text-2xl leading-[1.25]">“{d.titulo}”</p>
+                <p className="m-0 text-base leading-[1.55] text-[#4A403A]">{d.texto}</p>
+              </blockquote>
+              <figcaption className="flex items-center gap-3">
+                <Image
+                  src={d.avatar.src}
+                  width={48}
+                  height={48}
+                  alt={d.avatar.alt}
+                  className="rounded-full"
+                />
+                <span className="flex flex-col">
+                  <span className="text-[15px] font-semibold">{d.nome}</span>
+                  <span className="text-sm text-[#645950]">{d.cargo}</span>
+                </span>
+              </figcaption>
+            </figure>
+          ),
+        )}
       </div>
     </div>
   );

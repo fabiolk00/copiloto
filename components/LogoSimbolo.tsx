@@ -9,6 +9,7 @@ export default function LogoSimbolo({
   tinta = "#2A2420",
   destaque = "#4F5A30",
   className,
+  style,
 }: {
   size?: number;
   /** Círculo. */
@@ -16,6 +17,8 @@ export default function LogoSimbolo({
   /** Trilha e pontos. Verde-oliva da marca por padrão. */
   destaque?: string;
   className?: string;
+  /** Para dimensionar por unidades relativas (ex.: cqw) em vez de px. */
+  style?: React.CSSProperties;
 }) {
   return (
     <svg
@@ -26,6 +29,7 @@ export default function LogoSimbolo({
       aria-hidden="true"
       focusable="false"
       className={className}
+      style={style}
     >
       <circle cx="32" cy="32" r="27" fill="none" stroke={tinta} strokeWidth="3.5" />
       <line x1="21" y1="42" x2="43" y2="22" stroke={destaque} strokeWidth="3" strokeLinecap="round" opacity=".5" />
