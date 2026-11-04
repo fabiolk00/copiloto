@@ -24,7 +24,7 @@ const MIGRATIONS_DIR = join(__dirname, "..", "supabase", "migrations");
  */
 export async function startHarnessDb({ port }) {
   const db = new PGlite();
-  const server = new PGLiteSocketServer({ db, port, host: "127.0.0.1" });
+  const server = new PGLiteSocketServer({ db, port, host: "127.0.0.1", maxConnections: 20 });
   await server.start();
 
   const sql = postgres({
@@ -40,7 +40,10 @@ export async function startHarnessDb({ port }) {
     .filter((f) => f.endsWith(".sql"))
     .sort();
   for (const file of files) {
-    await sql.unsafe(readFileSync(join(MIGRATIONS_DIR, file), "utf8"));
+    const ddl = readFileSync(join(MIGRATIONS_DIR, file), "utf8");
+    // Migrations de extensões do Supabase (pg_cron, pg_net) não rodam no PGlite.
+    if (ddl.includes("-- @supabase-only")) continue;
+    await sql.unsafe(ddl);
   }
 
   return {

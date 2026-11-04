@@ -117,7 +117,8 @@ const AREA_SLUG = "financeiro";
 const AREA_NAME = "Financeiro";
 
 export async function goToCheckoutPage(page: Page) {
-  await page.goto(`/${AREA_SLUG}`);
+  // O checkout só libera o botão com uma trilha escolhida (ver PixCheckout.tsx).
+  await page.goto(`/${AREA_SLUG}?trilha=crescer`);
 }
 
 export async function startCheckout(page: Page) {

@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { readFileSync, existsSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -125,6 +125,10 @@ async function main() {
     MP_PIX_EXPIRATION: "PT25S",
     MP_API_BASE_URL: `http://127.0.0.1:${FAKE_MP_PORT}`,
     DATABASE_URL: db.url,
+    // PGlite multiplexa todas as conexões num único backend e intercala mensagens do
+    // protocolo estendido entre elas (bind/parse de requisições simultâneas se misturam).
+    // Com 1 conexão no pool o app serializa as queries, como um Postgres real isolaria.
+    DB_POOL_MAX: "1",
     // Valores falsos: o harness não baixa PDF; só satisfazem a validação de lib/env.ts.
     SUPABASE_URL: "https://harness.supabase.test",
     SUPABASE_SERVICE_ROLE_KEY: "harness-chave-nao-real",
@@ -180,7 +184,12 @@ async function main() {
   } finally {
     log("Encerrando app, fake-mp e banco...");
     if (appProcess) {
-      appProcess.kill();
+      if (process.platform === "win32" && appProcess.pid) {
+        // Com shell:true o kill() mata só o cmd.exe e deixa o node do Next vivo, ocupando a porta.
+        spawnSync("taskkill", ["/pid", String(appProcess.pid), "/T", "/F"], { stdio: "ignore" });
+      } else {
+        appProcess.kill();
+      }
     }
     await stopFakeMp();
     await db.stop();

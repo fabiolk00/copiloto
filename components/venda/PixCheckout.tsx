@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { track } from "@/lib/track";
 import { useTrilha } from "./TrilhaProvider";
 
@@ -19,7 +19,9 @@ const POLL_MAX_MS = 30_000;
 
 const SESSION_STORAGE_KEY = "pix-checkout-session";
 
-type PersistedSession = { clientToken: string; email: string };
+type Trilha = "crescer" | "mudar";
+
+type PersistedSession = { clientToken: string; email: string; trilha?: Trilha };
 
 /**
  * Sobrevive a um F5 na mesma aba (mas não a uma aba nova) enquanto o Pix
@@ -33,7 +35,8 @@ function readPersistedSession(): PersistedSession | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<PersistedSession>;
     if (typeof parsed.clientToken === "string" && typeof parsed.email === "string") {
-      return { clientToken: parsed.clientToken, email: parsed.email };
+      const trilha = parsed.trilha === "crescer" || parsed.trilha === "mudar" ? parsed.trilha : undefined;
+      return { clientToken: parsed.clientToken, email: parsed.email, trilha };
     }
   } catch {
     // sessionStorage indisponível (modo privado) ou valor corrompido — segue sem recuperar nada.
@@ -93,7 +96,7 @@ export default function PixCheckout({
   const [copied, setCopied] = useState(false);
   const [resend, setResend] = useState<"idle" | "sending" | "sent" | "limit" | "error">("idle");
 
-  const createPix = useCallback(async () => {
+  const createPix = useCallback(async (trilhaOverride?: Trilha) => {
     setStep("loading");
     setErrorMessage(null);
     try {
@@ -102,7 +105,7 @@ export default function PixCheckout({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           area,
-          trilha,
+          trilha: trilhaOverride ?? trilha,
           payerEmail: email,
           clientToken,
         }),
@@ -112,7 +115,7 @@ export default function PixCheckout({
 
       setPix(data);
       setStep("waiting");
-      persistSession({ clientToken, email });
+      persistSession({ clientToken, email, trilha: trilhaOverride ?? trilha ?? undefined });
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Não foi possível gerar o Pix.");
       setStep("error");
@@ -124,17 +127,23 @@ export default function PixCheckout({
   // devolve o Pix já existente em vez de criar uma nova order (ver o branch
   // de replay em app/api/pix/create/route.ts), então o usuário não perde o
   // QR Code nem gera cobrança duplicada só por ter recarregado a página.
+  // A trilha é obrigatória na API, mas o TrilhaProvider só a lê de ?trilha= depois
+  // da hidratação: retomar com ela ainda nula daria 400 e o cliente perderia o QR.
+  // Por isso a sessão guarda a trilha; sem ela, espera o provider resolver.
+  const resumedRef = useRef(false);
   useEffect(() => {
-    if (!isResuming) return;
+    if (!isResuming || resumedRef.current) return;
+    const resumeTrilha = readPersistedSession()?.trilha ?? trilha ?? undefined;
+    if (!resumeTrilha) return;
+    resumedRef.current = true;
     // Adia para depois do commit do efeito: `createPix` seta estado já na
     // primeira linha (`setStep("loading")`), e chamar isso de forma síncrona
     // dentro do corpo do efeito é exatamente o que a regra
     // react-hooks/set-state-in-effect aponta como causa de cascading renders.
     queueMicrotask(() => {
-      void createPix();
+      void createPix(resumeTrilha);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isResuming, trilha, createPix]);
 
   // Countdown — drives the UI independently of the backend poll, so expiry
   // feedback is instant instead of waiting for the next 5s tick.
@@ -292,7 +301,7 @@ export default function PixCheckout({
     return (
       <div className="flex flex-col gap-2">
         <p role="alert" className="text-sm text-red-700">{errorMessage}</p>
-        <button type="button" onClick={createPix} className={className}>
+        <button type="button" onClick={() => void createPix()} className={className}>
           Tentar de novo
         </button>
       </div>
@@ -303,7 +312,7 @@ export default function PixCheckout({
     return (
       <div className="flex flex-col gap-2 items-center">
         <p className="text-sm text-[#4A403A]">Esse Pix expirou.</p>
-        <button type="button" onClick={createPix} className={className}>
+        <button type="button" onClick={() => void createPix()} className={className}>
           Gerar novo Pix
         </button>
       </div>

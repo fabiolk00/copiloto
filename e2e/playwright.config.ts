@@ -1,13 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 
 // Caminhos absolutos de propósito: outputFile/outputFolder dos reporters
 // são resolvidos relativos ao diretório do config (e2e/), não à raiz do
 // projeto — sem isso, o relatório HTML do Playwright (que embute um bundle
 // React minificado) acaba em e2e/harness/report/html e o ESLint do projeto
 // tenta lintar esse bundle de terceiros junto com o código real.
-const PROJECT_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const PROJECT_ROOT = join(__dirname, "..");
 
 const APP_BASE_URL = process.env.APP_BASE_URL ?? "http://127.0.0.1:55702";
 const JSON_REPORT = process.env.HARNESS_JSON_REPORT ?? join(PROJECT_ROOT, "harness", "report", "playwright-report.json");

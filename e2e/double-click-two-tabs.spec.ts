@@ -21,11 +21,10 @@ test.describe("duplo clique e duas abas: nenhuma order duplicada para o mesmo pe
     });
 
     const submitButton = page.getByRole("button", { name: /gerar código pix/i });
-    // Dispara dois cliques o mais simultâneo possível — o segundo "clique"
-    // só existe se o botão ainda estiver lá: assim que o primeiro clique
-    // dispara, o componente troca para "Gerando o Pix…" (disabled), o que já
-    // é a primeira linha de defesa contra o duplo clique.
-    await Promise.all([submitButton.click(), submitButton.click({ force: true }).catch(() => {})]);
+    // Duplo clique de verdade: assim que o primeiro clique dispara, o componente
+    // troca para "Gerando o Pix…" e o botão some (primeira linha de defesa contra o
+    // duplo clique) — o 2º clique pode não achar mais o elemento, o que é esperado.
+    await submitButton.dblclick({ timeout: 5_000 }).catch(() => {});
 
     await expect(page.getByAltText(/qr code pix/i)).toBeVisible({ timeout: 15_000 });
     expect(createRequests.length).toBeLessThanOrEqual(2); // o 2º clique, se chegou a disparar, não gerou 2 orders (ver asserção de banco abaixo)
@@ -61,7 +60,7 @@ test.describe("duplo clique e duas abas: nenhuma order duplicada para o mesmo pe
       });
     }
 
-    await Promise.all([pageA.goto("/financeiro"), pageB.goto("/financeiro")]);
+    await Promise.all([pageA.goto("/financeiro?trilha=crescer"), pageB.goto("/financeiro?trilha=crescer")]);
     await Promise.all([waitForOutcome(pageA), waitForOutcome(pageB)]);
 
     // Uma das duas abas deve acabar mostrando o QR (a vencedora da corrida);
