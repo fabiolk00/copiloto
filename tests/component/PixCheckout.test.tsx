@@ -4,6 +4,9 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import PixCheckout from "@/components/venda/PixCheckout";
 
+const push = vi.hoisted(() => vi.fn());
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+
 vi.mock("@/components/venda/TrilhaProvider", () => ({
   useTrilha: () => ({ trilha: "crescer", setTrilha: vi.fn() }),
 }));
@@ -207,6 +210,7 @@ describe("<PixCheckout />", () => {
     await vi.advanceTimersByTimeAsync(5000);
 
     expect(await screen.findByRole("status")).toHaveTextContent(/pagamento aprovado/i);
+    expect(push).toHaveBeenCalledWith(expect.stringMatching(/^\/obrigado\?area=.+&email=/));
 
     const callsAfterPaid = (fetch as ReturnType<typeof vi.fn>).mock.calls.length;
     await vi.advanceTimersByTimeAsync(30000);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { track } from "@/lib/track";
 import { useTrilha } from "./TrilhaProvider";
 
@@ -83,6 +84,7 @@ export default function PixCheckout({
   children: React.ReactNode;
 }) {
   const { trilha } = useTrilha();
+  const router = useRouter();
   const [clientToken] = useState(() => readPersistedSession()?.clientToken ?? crypto.randomUUID());
   // Captura, só na primeira renderização, se este mount começa retomando uma
   // sessão de uma aba que já tinha um Pix pendente (ver efeito de retomada abaixo).
@@ -195,6 +197,14 @@ export default function PixCheckout({
       clearTimeout(timer);
     };
   }, [step, pix]);
+
+  // Pagamento aprovado: leva a pessoa para a tela de confirmação. O envio do PDF
+  // continua no servidor (webhook); a URL só carrega área e e-mail para exibição.
+  useEffect(() => {
+    if (step !== "paid") return;
+    const params = new URLSearchParams({ area, email });
+    router.push(`/obrigado?${params.toString()}`);
+  }, [step, area, email, router]);
 
   const handleStart = () => {
     track("click_cta", { area, trilha: trilha ?? undefined, posicao: "closing" });

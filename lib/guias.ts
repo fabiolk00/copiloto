@@ -35,16 +35,18 @@ export const SUPPORT_EMAIL = "fabio.kro@outlook.com";
 /** Single fixed price for any guide/area, in BRL. Computed server-side only — never trust a price from the client. */
 export const PRICE_BRL = 29.9;
 
-export const TRILHAS: { id: Trilha; rotulo: string; descricao: string }[] = [
+export const TRILHAS: { id: Trilha; rotulo: string; descricao: string; curta: string }[] = [
   {
     id: "crescer",
     rotulo: "Quero crescer onde estou",
     descricao: "Levar o seu trabalho atual para o próximo nível, dentro da empresa onde já está.",
+    curta: "Ganhar espaço na empresa atual.",
   },
   {
     id: "mudar",
     rotulo: "Quero mudar de empresa",
     descricao: "Preparar currículo, LinkedIn e entrevistas para se candidatar a novas vagas.",
+    curta: "Preparar currículo e entrevistas.",
   },
 ];
 
