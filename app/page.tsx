@@ -8,7 +8,7 @@ import { SEO_TITLE_HOME, organizationLd, pageMetadata, websiteLd } from "@/lib/s
 export const metadata: Metadata = pageMetadata({
   title: SEO_TITLE_HOME,
   description:
-    "Guias digitais por profissão (Financeiro, Análise de Dados, Comercial) com etapas semanais e prompts de IA prontos para aplicar.",
+    "Guias digitais por profissão (Financeiro, Análise de Dados, Comercial, Administrativo) com etapas semanais e prompts de IA prontos para aplicar.",
   path: "/",
 });
 
@@ -17,7 +17,7 @@ export default function Home() {
     <>
     <JsonLd data={[organizationLd(), websiteLd()]} />
     <main className="min-h-screen flex items-center justify-center px-10 py-24">
-      <div className="max-w-[560px] flex flex-col gap-8 text-center">
+      <div className="max-w-[640px] flex flex-col gap-8 text-center">
         <span className="inline-flex items-center justify-center gap-[13px] text-[#2A2420]">
           <LogoSimbolo size={43} />
           <h1 className="m-0 font-serif font-normal text-[28px] tracking-[-0.015em] whitespace-nowrap">{BRAND_NAME}</h1>
@@ -26,7 +26,7 @@ export default function Home() {
           Guias digitais por profissão, em três partes, com prompts de IA prontos para usar.
           Escolha a sua área para ver o guia completo.
         </p>
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {AREAS.map((area) => (
             <Link
               key={area.slug}

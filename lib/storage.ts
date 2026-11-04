@@ -31,6 +31,8 @@ export const PDF_OBJECT_PATHS = [
   "Guia-Carreira-Analise-de-Dados-Mudar-de-Empresa.pdf",
   "Guia-Carreira-Comercial-Crescer-na-Empresa.pdf",
   "Guia-Carreira-Comercial-Mudar-de-Empresa.pdf",
+  "Guia-Carreira-Administrativo-Crescer-na-Empresa.pdf",
+  "Guia-Carreira-Administrativo-Mudar-de-Empresa.pdf",
 ] as const;
 
 export type PdfObjectPath = (typeof PDF_OBJECT_PATHS)[number];

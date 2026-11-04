@@ -10,6 +10,8 @@ describe("resolveGuiaPdf (allowlist área x trilha)", () => {
     ["analise-de-dados", "mudar", "Guia-Carreira-Analise-de-Dados-Mudar-de-Empresa.pdf"],
     ["comercial", "crescer", "Guia-Carreira-Comercial-Crescer-na-Empresa.pdf"],
     ["comercial", "mudar", "Guia-Carreira-Comercial-Mudar-de-Empresa.pdf"],
+    ["administrativo", "crescer", "Guia-Carreira-Administrativo-Crescer-na-Empresa.pdf"],
+    ["administrativo", "mudar", "Guia-Carreira-Administrativo-Mudar-de-Empresa.pdf"],
   ])("%s / %s -> %s", (area, trilha, arquivo) => {
     expect(resolveGuiaPdf(area, trilha)).toBe(arquivo);
   });
@@ -28,7 +30,7 @@ describe("resolveGuiaPdf (allowlist área x trilha)", () => {
 
   it("todo caminho da allowlist de storage é alcançável por algum par área/trilha", () => {
     const alcancaveis = new Set<string>();
-    for (const area of ["financeiro", "analise-de-dados", "comercial"]) {
+    for (const area of ["financeiro", "analise-de-dados", "comercial", "administrativo"]) {
       for (const trilha of ["crescer", "mudar"]) {
         const p = resolveGuiaPdf(area, trilha);
         if (p) alcancaveis.add(p);

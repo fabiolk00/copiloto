@@ -4,7 +4,7 @@ export type Trilha = "crescer" | "mudar";
 export type Area = {
   slug: string;
   name: string;
-  roman: "I" | "II" | "III";
+  roman: "I" | "II" | "III" | "IV";
   /** Accent color for this profession, used only in small details (dot, rail, labels). */
   c: string;
   /** Darker, text-safe variant of the accent color. */
@@ -229,6 +229,66 @@ export const AREAS: Area[] = [
       "Sim. As etapas tratam de rotina e posicionamento, que valem para os dois. Os prompts trazem exemplos de ambos.",
     ],
   },
+  {
+    slug: "administrativo",
+    name: "Administrativo",
+    roman: "IV",
+    c: "#7A5E8A",
+    ct: "#6b4a79",
+    tint: "#EAE3EE",
+    h1: "Uma rotina administrativa que mostra o seu valor e abre o próximo cargo.",
+    sub: "Um guia em três partes para quem trabalha no administrativo e quer que o seu trabalho seja visto como estratégico, não só como suporte. Com prompts prontos para usar a IA em e-mails, planilhas, atas e processos.",
+    heroSub: {
+      crescer:
+        "Um guia em três partes para quem quer crescer no administrativo dentro da empresa onde já está, com etapas semanais e prompts prontos para usar a IA nas tarefas que mais tomam o seu tempo.",
+      mudar:
+        "Um guia em três partes para quem quer se candidatar a novas vagas administrativas, com etapas semanais e prompts prontos para organizar currículo, LinkedIn e entrevistas.",
+    },
+    bonus: "",
+    bonusD: "",
+    honestT: "Este guia vai te ajudar a mostrar o valor que você já entrega.",
+    honest: "Ele não substitui experiência, nem muda sozinho a forma como a empresa enxerga o administrativo. O que ele faz é organizar a sua próxima fase em etapas pequenas e mostrar onde a IA tira peso das tarefas repetitivas para sobrar tempo para o que aparece.",
+    gives: [
+      "Diagnóstico de onde você está hoje no administrativo",
+      "Três partes com etapas semanais curtas",
+      "Páginas de reflexão e exercícios práticos",
+      "Prompts prontos para e-mails, planilhas, atas e mapeamento de processos",
+      "Roteiro para a conversa de carreira com a sua liderança",
+    ],
+    parts: [
+      "Mapear tudo o que passa pela sua mesa e separar o que é urgente do que é invisível.",
+      "Usar a IA para enxugar a rotina e escolher um processo para melhorar e documentar.",
+      "Mostrar o resultado dessa melhoria, abrir a conversa de carreira e definir os próximos seis meses.",
+    ],
+    parteIII: {
+      crescer: {
+        titulo: "Virar a referência que organiza a área",
+        desc: "Propor assumir um processo de ponta a ponta, mostrar a melhoria feita e negociar o próximo nível com a sua liderança.",
+      },
+      mudar: {
+        titulo: "Levar a sua organização para outra empresa",
+        desc: "Traduzir melhorias de processo em linhas de currículo com resultado, mirar vagas de analista ou coordenação e preparar a entrevista.",
+      },
+    },
+    prompts: [
+      [
+        "Transformar anotações em ata",
+        "Vou colar as anotações soltas de uma reunião sobre [tema]. Organize em uma ata com: decisões tomadas, responsáveis, prazos e pontos em aberto. Não invente nada que não esteja nas anotações.\n\n[colar anotações]",
+      ],
+      [
+        "Mapear um processo para melhorar",
+        "Descreva em etapas numeradas o processo de [processo, ex.: reembolso de despesas] a partir do que vou contar. Depois aponte 3 gargalos prováveis e uma melhoria simples para cada, sem exigir sistema novo.\n\n[descrever o processo]",
+      ],
+      [
+        "Escrever um e-mail difícil com calma",
+        "Escreva um e-mail curto para [pessoa/área] explicando que [situação, ex.: o prazo não será cumprido]. Tom cordial e direto, com o motivo em uma frase, a nova proposta e uma pergunta clara no final.",
+      ],
+    ],
+    faq1: [
+      "Serve para assistente, auxiliar e analista administrativo?",
+      "Sim. As etapas partem de onde você está, seja em recepção, secretariado, compras, RH operacional ou backoffice. Os exercícios se ajustam ao seu momento.",
+    ],
+  },
 ];
 
 export function getAreaBySlug(slug: string): Area | undefined {
@@ -256,6 +316,7 @@ export const PREVIEW_PASTA: Record<string, string> = {
   financeiro: "financeiro",
   "analise-de-dados": "dados",
   comercial: "comercial",
+  administrativo: "administrativo",
 };
 
 export const GUARANTEES = ["Acesso imediato, por e-mail", "Acesso permanente ao PDF"];
