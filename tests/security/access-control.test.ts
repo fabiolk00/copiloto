@@ -159,7 +159,7 @@ describe("não existem endpoints de debug/admin expostos", () => {
     expect(definedRoutes).not.toContain(path);
   });
 
-  it("as únicas rotas de API existentes são exatamente as 8 esperadas (nenhuma rota de debug foi adicionada sem querer)", async () => {
+  it("as únicas rotas de API existentes são exatamente as 9 esperadas (nenhuma rota de debug foi adicionada sem querer)", async () => {
     const fs = await import("node:fs");
     const definedRoutes = fs
       .readdirSync("app/api", { recursive: true })
@@ -170,6 +170,7 @@ describe("não existem endpoints de debug/admin expostos", () => {
     expect(definedRoutes).toEqual(
       [
         "internal/reconcile/route.ts",
+        "orders/[id]/curriculo/route.ts",
         "orders/[id]/download/route.ts",
         "orders/[id]/guia/route.ts",
         "orders/[id]/reenviar/route.ts",

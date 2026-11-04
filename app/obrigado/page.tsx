@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 const PASSOS: [string, string][] = [
   ["Abra o seu e-mail", `Procure por “${BRAND_NAME}”.`],
-  ["Baixe o PDF", "Use o link do e-mail para baixar o PDF e ler no celular."],
+  ["Baixe o PDF e o currículo", "Use os links do e-mail para baixar o guia em PDF e o modelo de currículo ATS (.docx)."],
   ["Comece pela parte I", "As duas primeiras semanas são curtas e já mostram resultado."],
 ];
 
@@ -59,7 +59,7 @@ export default async function ObrigadoPage({
             Seu guia está a caminho do seu e-mail.
           </h1>
           <p className="m-0 text-[15px] md:text-lg leading-[1.55] text-[#4A403A]">
-            Enviamos o PDF de <strong>{area.name}</strong> para{" "}
+            Enviamos o PDF de <strong>{area.name}</strong> e o modelo de currículo ATS para{" "}
             <strong>{email ?? "o e-mail informado na compra"}</strong>. Costuma chegar em até 5 minutos.
           </p>
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { sendEmailViaResend } from "@/lib/email";
-import { buildGuiaLink, buildLogoUrl, renderGuiaEmail } from "@/lib/email-template";
+import { buildCurriculoLink, buildGuiaLink, buildLogoUrl, renderGuiaEmail } from "@/lib/email-template";
 
 // Teste contra a API real do Resend. Só roda com RESEND_LIVE_TEST=1, RESEND_API_KEY
 // e EMAIL_FROM no ambiente. Só envia para os endereços de teste do Resend
@@ -15,6 +15,7 @@ describe.skipIf(!enabled)("Resend (ao vivo)", () => {
     areaSlug: "financeiro",
     trilha: "crescer",
     link: buildGuiaLink(base, "00000000-0000-4000-8000-000000000000"),
+    curriculoLink: buildCurriculoLink(base, "00000000-0000-4000-8000-000000000000"),
     logoUrl: buildLogoUrl(base),
   });
 

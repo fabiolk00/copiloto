@@ -21,6 +21,11 @@ export function buildGuiaLink(appUrl: string, clientToken: string): string {
   return `${appUrl.replace(/\/+$/, "")}/api/orders/${encodeURIComponent(clientToken)}/guia`;
 }
 
+/** Link do modelo de currículo ATS: assina no clique, como o link do guia. */
+export function buildCurriculoLink(appUrl: string, clientToken: string): string {
+  return `${appUrl.replace(/\/+$/, "")}/api/orders/${encodeURIComponent(clientToken)}/curriculo`;
+}
+
 /**
  * PNG público do símbolo (clientes de e-mail não renderizam SVG). Precisa ser
  * URL absoluta e acessível sem login; o arquivo vive em public/logo-email.png.
@@ -33,6 +38,8 @@ export function renderGuiaEmail(params: {
   areaSlug: string;
   trilha: string | null;
   link: string;
+  /** Link do modelo de currículo ATS (.docx), que acompanha o guia em qualquer trilha. */
+  curriculoLink: string;
   /** URL absoluta do símbolo. Sem ela, o cabeçalho mostra só o nome da marca. */
   logoUrl?: string;
 }): { subject: string; html: string; text: string } {
@@ -48,6 +55,9 @@ export function renderGuiaEmail(params: {
     "",
     `Seu guia (${linhaGuia}) está pronto. Baixe pelo link abaixo:`,
     params.link,
+    "",
+    `Junto com o guia, vai o seu modelo de currículo ATS de ${areaNome} (arquivo .docx editável, com diretrizes e prompt para a IA adaptar o currículo a cada vaga):`,
+    params.curriculoLink,
     "",
     "O link continua valendo: você pode voltar a ele quando quiser.",
     "Se você não fez esta compra, ignore este e-mail. Dúvidas? É só responder esta mensagem.",
@@ -70,6 +80,8 @@ ${cabecalho}
 <p style="margin:0 0 12px;font-size:18px;font-weight:bold;">Seu guia está pronto</p>
 <p style="margin:0 0 20px;font-size:15px;line-height:1.5;">Obrigado pela compra. Seu guia (${escapeHtml(linhaGuia)}) pode ser baixado pelo botão abaixo.</p>
 <p style="margin:0 0 20px;"><a href="${escapeHtml(params.link)}" style="display:inline-block;padding:12px 20px;background:#2b2420;color:#ffffff;text-decoration:none;border-radius:8px;font-size:15px;">Baixar o guia</a></p>
+<p style="margin:0 0 12px;font-size:15px;line-height:1.5;">Junto com o guia, vai o seu <strong>modelo de currículo ATS</strong> de ${escapeHtml(areaNome)}: um arquivo .docx editável, com diretrizes e um prompt para a IA adaptar o currículo a cada vaga.</p>
+<p style="margin:0 0 20px;"><a href="${escapeHtml(params.curriculoLink)}" style="display:inline-block;padding:11px 18px;background:#fbf8f2;color:#2b2420;text-decoration:none;border:1.5px solid #2b2420;border-radius:8px;font-size:15px;">Baixar o modelo de currículo</a></p>
 <p style="margin:0 0 8px;font-size:13px;line-height:1.5;color:#4a403a;">Se o botão não abrir, copie e cole este endereço no navegador:<br>${escapeHtml(params.link)}</p>
 <p style="margin:0 0 8px;font-size:13px;line-height:1.5;color:#4a403a;">O link continua valendo: você pode voltar a ele quando quiser.</p>
 <p style="margin:0;font-size:13px;line-height:1.5;color:#4a403a;">Se você não fez esta compra, ignore este e-mail. Dúvidas? É só responder esta mensagem.</p>

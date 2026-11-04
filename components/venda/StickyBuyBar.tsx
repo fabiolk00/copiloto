@@ -38,7 +38,7 @@ export default function StickyBuyBar({ area }: { area: string }) {
     >
       <div className="flex flex-col leading-tight">
         <span className="font-serif text-xl">R$ {preco}</span>
-        <span className="text-xs text-[#645950]">PDF no seu e-mail</span>
+        <span className="text-xs text-[#645950]">PDF e currículo no seu e-mail</span>
       </div>
       <CtaLink
         area={area}

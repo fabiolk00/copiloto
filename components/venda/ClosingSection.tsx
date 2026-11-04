@@ -47,7 +47,7 @@ export default function ClosingSection({ area }: { area: Area }) {
             <span className="md:hidden">Quero o guia {area.name}</span>
           </PixCheckout>
           <span className="text-sm text-[#645950] text-center">
-            Pagamento seguro · PDF enviado por e-mail
+            Pagamento seguro · PDF e currículo enviados por e-mail
           </span>
         </div>
       </div>

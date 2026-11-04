@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createHmac } from "node:crypto";
 import { backoffSegundos, BACKOFF_MINUTOS } from "@/lib/email-queue";
-import { buildGuiaLink, buildLogoUrl, escapeHtml, renderGuiaEmail } from "@/lib/email-template";
+import { buildCurriculoLink, buildGuiaLink, buildLogoUrl, escapeHtml, renderGuiaEmail } from "@/lib/email-template";
 import { hasHeaderInjection, maskEmail } from "@/lib/email";
 import { verifyResendWebhook } from "@/lib/resend-signature";
 
@@ -145,11 +145,28 @@ describe("template do e-mail", () => {
     expect(escapeHtml(`<script>"x"&'y'</script>`)).toBe("&lt;script&gt;&quot;x&quot;&amp;&#39;y&#39;&lt;/script&gt;");
     const link = buildGuiaLink("https://app.example.test/", "11111111-1111-4111-8111-111111111111");
     expect(link).toBe("https://app.example.test/api/orders/11111111-1111-4111-8111-111111111111/guia");
-    const { subject, html, text } = renderGuiaEmail({ areaSlug: "financeiro", trilha: "crescer", link });
+    const curriculoLink = buildCurriculoLink("https://app.example.test/", "11111111-1111-4111-8111-111111111111");
+    expect(curriculoLink).toBe("https://app.example.test/api/orders/11111111-1111-4111-8111-111111111111/curriculo");
+    const { subject, html, text } = renderGuiaEmail({ areaSlug: "financeiro", trilha: "crescer", link, curriculoLink });
     expect(subject).not.toMatch(/[\r\n]/);
     expect(html).toContain(link);
     expect(text).toContain(link);
     expect(html).toContain("Financeiro");
+    // O currículo vai no MESMO e-mail do guia, em HTML e em texto.
+    expect(html).toContain(curriculoLink);
+    expect(text).toContain(curriculoLink);
+    expect(html).toContain("Baixar o modelo de currículo");
+  });
+
+  it.each(["crescer", "mudar", null])("o link do currículo está no e-mail com a trilha %s", (trilha) => {
+    const { html, text } = renderGuiaEmail({
+      areaSlug: "comercial",
+      trilha,
+      link: "https://a.test/guia",
+      curriculoLink: "https://a.test/curriculo",
+    });
+    expect(html).toContain("https://a.test/curriculo");
+    expect(text).toContain("https://a.test/curriculo");
   });
 
   it("cabeçalho com o símbolo (PNG absoluto, tamanho fixo) e o nome da marca em texto", () => {
@@ -158,6 +175,7 @@ describe("template do e-mail", () => {
       areaSlug: "financeiro",
       trilha: "crescer",
       link: "https://a.test/x",
+      curriculoLink: "https://a.test/c",
       logoUrl: buildLogoUrl("https://app.example.test"),
     });
     expect(html).toContain('<img src="https://app.example.test/logo-email.png" width="40" height="40" alt=""');
@@ -166,21 +184,21 @@ describe("template do e-mail", () => {
   });
 
   it("sem logoUrl: só o nome da marca, sem <img>", () => {
-    const { html } = renderGuiaEmail({ areaSlug: "financeiro", trilha: "crescer", link: "https://a.test/x" });
+    const { html } = renderGuiaEmail({ areaSlug: "financeiro", trilha: "crescer", link: "https://a.test/x", curriculoLink: "https://a.test/c" });
     expect(html).not.toContain("<img");
     expect(html).toContain("Copiloto Carreira");
   });
 
   it("área ou trilha fora da lista fechada nunca entram crus no corpo", () => {
-    const { html, text } = renderGuiaEmail({ areaSlug: "<img src=x onerror=alert(1)>", trilha: "<b>", link: "https://a.test/x" });
+    const { html, text } = renderGuiaEmail({ areaSlug: "<img src=x onerror=alert(1)>", trilha: "<b>", link: "https://a.test/x", curriculoLink: "https://a.test/c" });
     expect(html).not.toContain("onerror");
     expect(text).not.toContain("onerror");
     expect(html).not.toContain("<b>");
   });
 
   it("o corpo não traz URL assinada do Storage nem timestamp (idempotência exige corpo estável)", () => {
-    const a = renderGuiaEmail({ areaSlug: "comercial", trilha: "mudar", link: "https://a.test/x" });
-    const b = renderGuiaEmail({ areaSlug: "comercial", trilha: "mudar", link: "https://a.test/x" });
+    const a = renderGuiaEmail({ areaSlug: "comercial", trilha: "mudar", link: "https://a.test/x", curriculoLink: "https://a.test/c" });
+    const b = renderGuiaEmail({ areaSlug: "comercial", trilha: "mudar", link: "https://a.test/x", curriculoLink: "https://a.test/c" });
     expect(a).toEqual(b);
     expect(a.html).not.toMatch(/storage\/v1|token=/);
   });

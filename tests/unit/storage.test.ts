@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createSignedPdfUrl, PDF_OBJECT_PATHS, SIGNED_URL_TTL_SECONDS, type PdfObjectPath } from "@/lib/storage";
+import {
+  createSignedPdfUrl,
+  CURRICULO_OBJECT_PATHS,
+  PDF_OBJECT_PATHS,
+  SIGNED_URL_TTL_SECONDS,
+  type PdfObjectPath,
+} from "@/lib/storage";
 
 const ARQUIVO = PDF_OBJECT_PATHS[0];
 const originalEnv = { url: process.env.SUPABASE_URL, key: process.env.SUPABASE_SERVICE_ROLE_KEY };
@@ -38,6 +44,16 @@ describe("createSignedPdfUrl", () => {
     expect(init.method).toBe("POST");
     expect(JSON.parse(init.body as string)).toEqual({ expiresIn: SIGNED_URL_TTL_SECONDS });
     expect(SIGNED_URL_TTL_SECONDS).toBe(300);
+  });
+
+  it.each([...CURRICULO_OBJECT_PATHS])("o currículo %s está na allowlist e é assinado como o guia", async (arquivo) => {
+    const fetchMock = stubFetch({
+      ok: true,
+      json: async () => ({ signedURL: `/object/sign/pdfs/${arquivo}?token=abc` }),
+    });
+    const url = await createSignedPdfUrl(arquivo);
+    expect(url).toBe(`https://projeto.supabase.test/storage/v1/object/sign/pdfs/${arquivo}?token=abc`);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("caminho fora da allowlist: lança antes de qualquer chamada de rede", async () => {

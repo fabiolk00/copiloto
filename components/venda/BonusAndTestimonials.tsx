@@ -26,6 +26,15 @@ type DepoimentoTexto = {
 const DEPOIMENTOS: (DepoimentoImagem | DepoimentoTexto)[] = [
   {
     tipo: "imagem",
+    src: "/depoimentos/eder.png",
+    largura: 412,
+    altura: 183,
+    alt: "Mensagem: comprei o guia de Análise de Dados (mudar de empresa), usei o modelo de currículo com as diretrizes de IA e consegui 2 contatos com recrutadores",
+    legenda: "Mensagem recebida · nome e foto ocultados",
+    confirmado: true,
+  },
+  {
+    tipo: "imagem",
     src: "/depoimentos/felipe.png",
     largura: 428,
     altura: 220,

@@ -37,14 +37,30 @@ export const PDF_OBJECT_PATHS = [
 
 export type PdfObjectPath = (typeof PDF_OBJECT_PATHS)[number];
 
-const ALLOWED_PATHS: ReadonlySet<string> = new Set(PDF_OBJECT_PATHS);
+/**
+ * Modelo de currículo ATS (.docx), um por área. Vai junto com o guia de toda
+ * compra, qualquer que seja a trilha escolhida.
+ */
+export const CURRICULO_OBJECT_PATHS = [
+  "Curriculo-ATS-Financeiro-Mudar-de-Empresa.docx",
+  "Curriculo-ATS-Analise-de-Dados-Mudar-de-Empresa.docx",
+  "Curriculo-ATS-Comercial-Mudar-de-Empresa.docx",
+  "Curriculo-ATS-Administrativo-Mudar-de-Empresa.docx",
+] as const;
+
+export type CurriculoObjectPath = (typeof CURRICULO_OBJECT_PATHS)[number];
+
+export type StorageObjectPath = PdfObjectPath | CurriculoObjectPath;
+
+const ALLOWED_PATHS: ReadonlySet<string> = new Set<string>([...PDF_OBJECT_PATHS, ...CURRICULO_OBJECT_PATHS]);
 
 /**
- * Gera uma URL assinada de curta duração para um PDF do bucket privado.
+ * Gera uma URL assinada de curta duração para um arquivo (PDF ou .docx) do
+ * bucket privado.
  * O caminho precisa estar na allowlist; nunca é montado a partir de entrada
  * do usuário.
  */
-export async function createSignedPdfUrl(objectPath: PdfObjectPath): Promise<string> {
+export async function createSignedPdfUrl(objectPath: StorageObjectPath): Promise<string> {
   if (!ALLOWED_PATHS.has(objectPath)) {
     throw new Error("Caminho de PDF não permitido.");
   }

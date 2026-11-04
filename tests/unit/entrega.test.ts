@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { resolveGuiaPdf } from "@/lib/entrega";
-import { PDF_OBJECT_PATHS } from "@/lib/storage";
+import { resolveCurriculoDocx, resolveGuiaPdf } from "@/lib/entrega";
+import { CURRICULO_OBJECT_PATHS, PDF_OBJECT_PATHS } from "@/lib/storage";
 
 describe("resolveGuiaPdf (allowlist área x trilha)", () => {
   it.each([
@@ -37,5 +37,37 @@ describe("resolveGuiaPdf (allowlist área x trilha)", () => {
       }
     }
     expect([...alcancaveis].sort()).toEqual([...PDF_OBJECT_PATHS].sort());
+  });
+});
+
+describe("resolveCurriculoDocx (um modelo por área, independente da trilha)", () => {
+  it.each([
+    ["financeiro", "Curriculo-ATS-Financeiro-Mudar-de-Empresa.docx"],
+    ["analise-de-dados", "Curriculo-ATS-Analise-de-Dados-Mudar-de-Empresa.docx"],
+    ["comercial", "Curriculo-ATS-Comercial-Mudar-de-Empresa.docx"],
+    ["administrativo", "Curriculo-ATS-Administrativo-Mudar-de-Empresa.docx"],
+  ])("%s -> %s", (area, arquivo) => {
+    expect(resolveCurriculoDocx(area)).toBe(arquivo);
+  });
+
+  it("toda área que tem guia (em qualquer trilha) tem currículo", () => {
+    for (const area of ["financeiro", "analise-de-dados", "comercial", "administrativo"]) {
+      for (const trilha of ["crescer", "mudar"]) {
+        expect(resolveGuiaPdf(area, trilha)).not.toBeNull();
+        expect(resolveCurriculoDocx(area)).not.toBeNull();
+      }
+    }
+  });
+
+  it("entradas fora do mapa são recusadas, incluindo traversal e chaves herdadas do Object", () => {
+    expect(resolveCurriculoDocx("../../etc")).toBeNull();
+    expect(resolveCurriculoDocx("constructor")).toBeNull();
+    expect(resolveCurriculoDocx("__proto__")).toBeNull();
+    expect(resolveCurriculoDocx("")).toBeNull();
+  });
+
+  it("todo caminho de currículo da allowlist de storage é alcançável por alguma área", () => {
+    const alcancaveis = ["financeiro", "analise-de-dados", "comercial", "administrativo"].map((a) => resolveCurriculoDocx(a));
+    expect([...alcancaveis].sort()).toEqual([...CURRICULO_OBJECT_PATHS].sort());
   });
 });

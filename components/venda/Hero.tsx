@@ -56,7 +56,7 @@ export default function Hero({ area }: { area: Area }) {
             Quero o guia · R$ 29,90
           </CtaLink>
           <span className="text-sm text-[#645950] text-center">
-            Pagamento único · PDF no seu e-mail
+            Pagamento único · PDF e currículo no seu e-mail
           </span>
         </div>
       </div>
@@ -74,7 +74,7 @@ export default function Hero({ area }: { area: Area }) {
           className="flex-none w-16 h-20 object-cover rounded-md shadow-[0_1px_2px_rgba(60,40,20,.08),0_4px_10px_rgba(60,40,20,.10)]"
         />
         <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-semibold">PDF · 3 partes · 8 semanas</span>
+          <span className="text-sm font-semibold">Guia em PDF + currículo ATS</span>
           <span className="text-[13px] leading-[1.4] text-[#645950]">Etapas semanais curtas e prompts prontos para usar.</span>
         </div>
       </div>

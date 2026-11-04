@@ -321,7 +321,11 @@ export const PREVIEW_PASTA: Record<string, string> = {
   administrativo: "administrativo",
 };
 
-export const GUARANTEES = ["Acesso imediato, por e-mail", "Acesso permanente ao PDF"];
+export const GUARANTEES = [
+  "Acesso imediato, por e-mail",
+  "Acesso permanente ao PDF",
+  "Modelo de currículo ATS incluso",
+];
 
 export const COMMON_FAQ: [string, string][] = [
   [
@@ -330,7 +334,7 @@ export const COMMON_FAQ: [string, string][] = [
   ],
   [
     "Como eu recebo o guia?",
-    "Assim que o pagamento é confirmado, o PDF chega no e-mail informado em poucos minutos. Se não aparecer, confira o spam ou escreva para o suporte.",
+    "Assim que o pagamento é confirmado, o PDF do guia e o modelo de currículo ATS chegam no e-mail informado em poucos minutos, no mesmo e-mail. Se não aparecer, confira o spam ou escreva para o suporte.",
   ],
   [
     "Dá para ler no celular?",
@@ -342,6 +346,6 @@ export const COMMON_FAQ: [string, string][] = [
   ],
   [
     "Por quanto tempo tenho acesso?",
-    "Para sempre. O PDF é seu, e atualizações do guia chegam no mesmo e-mail.",
+    "Para sempre. O PDF e o modelo de currículo são seus, e atualizações do guia chegam no mesmo e-mail.",
   ],
 ];

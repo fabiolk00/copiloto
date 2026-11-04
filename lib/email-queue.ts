@@ -13,7 +13,7 @@
  */
 import { sql } from "@/lib/db";
 import { env } from "@/lib/env";
-import { buildGuiaLink, buildLogoUrl, renderGuiaEmail } from "@/lib/email-template";
+import { buildCurriculoLink, buildGuiaLink, buildLogoUrl, renderGuiaEmail } from "@/lib/email-template";
 import { hasHeaderInjection, maskEmail, sendEmailViaResend, type EmailSender } from "@/lib/email";
 
 export const MAX_TENTATIVAS = 6;
@@ -168,6 +168,7 @@ export async function processEmailQueue(opts: {
       areaSlug: claim.area_slug,
       trilha: claim.trilha,
       link: buildGuiaLink(appUrl, claim.client_token),
+      curriculoLink: buildCurriculoLink(appUrl, claim.client_token),
       logoUrl: buildLogoUrl(appUrl),
     });
     const idempotencyKey =

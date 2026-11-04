@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { PDF_PAGES, PREVIEW_PASTA, type Area } from "@/lib/guias";
+import CurriculoCard from "./CurriculoCard";
 
 export default function GuiaSection({ area }: { area: Area }) {
   const gives = [
@@ -40,6 +41,8 @@ export default function GuiaSection({ area }: { area: Area }) {
             </div>
           ))}
         </div>
+
+        <CurriculoCard area={area} pasta={PREVIEW_PASTA[area.slug]} />
 
         <div className="order-1 md:order-none no-scrollbar flex gap-3 md:gap-5 overflow-x-auto snap-x snap-mandatory md:py-3 md:pr-10 md:pb-4 px-5 md:px-0 scroll-px-5">
           {PDF_PAGES.map((p) => (

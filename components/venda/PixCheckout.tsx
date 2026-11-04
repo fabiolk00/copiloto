@@ -338,7 +338,7 @@ export default function PixCheckout({
         <span className="text-2xl">✅</span>
         <p className="font-semibold">Pagamento aprovado!</p>
         <p className="text-sm text-[#4A403A]">
-          O PDF do guia de {areaName} chega no seu e-mail em poucos minutos.
+          O PDF do guia de {areaName} e o modelo de currículo ATS chegam no seu e-mail em poucos minutos.
         </p>
         {pix && (
           <div className="flex flex-col gap-2 items-center mt-2">
@@ -347,6 +347,12 @@ export default function PixCheckout({
               className="rounded-lg bg-[#2B2420] px-4 py-2 text-sm text-white"
             >
               Baixar o guia agora
+            </a>
+            <a
+              href={`/api/orders/${pix.pedidoId}/curriculo`}
+              className="rounded-lg border border-[#2B2420] px-4 py-2 text-sm text-[#2B2420]"
+            >
+              Baixar o modelo de currículo
             </a>
             <button
               type="button"
