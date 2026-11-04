@@ -13,6 +13,8 @@ const PDF_POR_AREA_TRILHA = new Map<string, PdfObjectPath>([
   ["analise-de-dados:mudar", "Guia-Carreira-Analise-de-Dados-Mudar-de-Empresa.pdf"],
   ["comercial:crescer", "Guia-Carreira-Comercial-Crescer-na-Empresa.pdf"],
   ["comercial:mudar", "Guia-Carreira-Comercial-Mudar-de-Empresa.pdf"],
+  ["administrativo:crescer", "Guia-Carreira-Administrativo-Crescer-na-Empresa.pdf"],
+  ["administrativo:mudar", "Guia-Carreira-Administrativo-Mudar-de-Empresa.pdf"],
 ]);
 
 /** Devolve o arquivo do guia para a área e trilha, ou `null` se não houver correspondência. */
