@@ -45,6 +45,8 @@ const envSchema = z.object({
   RESEND_WEBHOOK_SECRET: z.string().min(1).optional(),
   // Remetente fixo no servidor, ex.: "Copiloto Carreira <guia@envio.seudominio.com.br>".
   EMAIL_FROM: z.string().min(3).optional(),
+  // Onde caem as respostas do cliente (suporte). Opcional: sem ele o e-mail sai sem Reply-To.
+  EMAIL_REPLY_TO: z.string().min(3).optional(),
   // Teto de envios por execução do cron (1x/min). Não fixa o limite do Resend.
   EMAIL_BATCH_SIZE: z.coerce.number().int().positive().max(50).default(5),
 });
@@ -66,6 +68,7 @@ export const env = envSchema.parse({
   RESEND_API_KEY: process.env.RESEND_API_KEY || undefined,
   RESEND_WEBHOOK_SECRET: process.env.RESEND_WEBHOOK_SECRET || undefined,
   EMAIL_FROM: process.env.EMAIL_FROM || undefined,
+  EMAIL_REPLY_TO: process.env.EMAIL_REPLY_TO || undefined,
   EMAIL_BATCH_SIZE: process.env.EMAIL_BATCH_SIZE || undefined,
 });
 

@@ -21,11 +21,11 @@ async function carregarSender(env: Record<string, string | undefined>) {
 }
 
 describe("sendEmailViaResend — classificação de erros", () => {
-  const salvo = { k: process.env.RESEND_API_KEY, f: process.env.EMAIL_FROM };
+  const salvo = { k: process.env.RESEND_API_KEY, f: process.env.EMAIL_FROM, r: process.env.EMAIL_REPLY_TO };
   beforeEach(() => vi.stubGlobal("fetch", vi.fn()));
   afterEach(() => {
     vi.unstubAllGlobals();
-    for (const [k, v] of [["RESEND_API_KEY", salvo.k], ["EMAIL_FROM", salvo.f]] as const) {
+    for (const [k, v] of [["RESEND_API_KEY", salvo.k], ["EMAIL_FROM", salvo.f], ["EMAIL_REPLY_TO", salvo.r]] as const) {
       if (v === undefined) delete process.env[k];
       else process.env[k] = v;
     }
@@ -44,6 +44,21 @@ describe("sendEmailViaResend — classificação de erros", () => {
     expect(init.headers.Authorization).toBe("Bearer re_chave_de_teste");
     expect(init.body).not.toContain("re_chave_de_teste");
     expect(init.signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it("envia reply_to só quando EMAIL_REPLY_TO está definido e recusa injeção de cabeçalho nele", async () => {
+    const sem = await carregarSender({ ...CONFIG, EMAIL_REPLY_TO: undefined });
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce(resposta(200, { id: "em_1" }));
+    await sem(MSG);
+    expect(JSON.parse((fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body)).not.toHaveProperty("reply_to");
+
+    const com = await carregarSender({ ...CONFIG, EMAIL_REPLY_TO: "suporte@example.test" });
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce(resposta(200, { id: "em_2" }));
+    await com(MSG);
+    expect(JSON.parse((fetch as ReturnType<typeof vi.fn>).mock.calls[1][1].body).reply_to).toBe("suporte@example.test");
+
+    const ruim = await carregarSender({ ...CONFIG, EMAIL_REPLY_TO: "a@example.test\r\nBcc: x@y.z" });
+    expect(await ruim(MSG)).toMatchObject({ ok: false, kind: "permanente" });
   });
 
   it.each([

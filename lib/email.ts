@@ -66,7 +66,13 @@ export const sendEmailViaResend: EmailSender = async (message) => {
   if (!apiKey) return { ok: false, kind: "configuracao", detail: "RESEND_API_KEY ausente" };
   if (!from) return { ok: false, kind: "configuracao", detail: "EMAIL_FROM ausente" };
 
-  if (hasHeaderInjection(message.to) || hasHeaderInjection(message.subject) || hasHeaderInjection(from)) {
+  const replyTo = env.EMAIL_REPLY_TO;
+  if (
+    hasHeaderInjection(message.to) ||
+    hasHeaderInjection(message.subject) ||
+    hasHeaderInjection(from) ||
+    (replyTo && hasHeaderInjection(replyTo))
+  ) {
     return { ok: false, kind: "permanente", detail: "cabeçalho com caractere de controle" };
   }
 
@@ -81,6 +87,7 @@ export const sendEmailViaResend: EmailSender = async (message) => {
       },
       body: JSON.stringify({
         from,
+        ...(replyTo ? { reply_to: replyTo } : {}),
         to: [message.to],
         subject: message.subject,
         html: message.html,
