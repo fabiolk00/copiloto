@@ -13,6 +13,7 @@
     "harness": "node harness/run.mjs"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "mercadopago": "^3.6.1",
     "next": "16.4.4",
     "postgres": "^4.0.0",
