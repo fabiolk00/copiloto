@@ -33,6 +33,10 @@ export const PDF_OBJECT_PATHS = [
   "Guia-Carreira-Comercial-Mudar-de-Empresa.pdf",
   "Guia-Carreira-Administrativo-Crescer-na-Empresa.pdf",
   "Guia-Carreira-Administrativo-Mudar-de-Empresa.pdf",
+  "Guia-Carreira-Customer-Success-Crescer-na-Empresa.pdf",
+  "Guia-Carreira-Customer-Success-Mudar-de-Empresa.pdf",
+  "Guia-Carreira-Marketing-Crescer-na-Empresa.pdf",
+  "Guia-Carreira-Marketing-Mudar-de-Empresa.pdf",
 ] as const;
 
 export type PdfObjectPath = (typeof PDF_OBJECT_PATHS)[number];
@@ -46,6 +50,8 @@ export const CURRICULO_OBJECT_PATHS = [
   "Curriculo-ATS-Analise-de-Dados-Mudar-de-Empresa.docx",
   "Curriculo-ATS-Comercial-Mudar-de-Empresa.docx",
   "Curriculo-ATS-Administrativo-Mudar-de-Empresa.docx",
+  "Curriculo-ATS-Customer-Success-Mudar-de-Empresa.docx",
+  "Curriculo-ATS-Marketing-Mudar-de-Empresa.docx",
 ] as const;
 
 export type CurriculoObjectPath = (typeof CURRICULO_OBJECT_PATHS)[number];

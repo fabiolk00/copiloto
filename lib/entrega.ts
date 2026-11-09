@@ -20,6 +20,10 @@ const PDF_POR_AREA_TRILHA = new Map<string, PdfObjectPath>([
   ["comercial:mudar", "Guia-Carreira-Comercial-Mudar-de-Empresa.pdf"],
   ["administrativo:crescer", "Guia-Carreira-Administrativo-Crescer-na-Empresa.pdf"],
   ["administrativo:mudar", "Guia-Carreira-Administrativo-Mudar-de-Empresa.pdf"],
+  ["customer-success:crescer", "Guia-Carreira-Customer-Success-Crescer-na-Empresa.pdf"],
+  ["customer-success:mudar", "Guia-Carreira-Customer-Success-Mudar-de-Empresa.pdf"],
+  ["marketing:crescer", "Guia-Carreira-Marketing-Crescer-na-Empresa.pdf"],
+  ["marketing:mudar", "Guia-Carreira-Marketing-Mudar-de-Empresa.pdf"],
 ]);
 
 /**
@@ -31,6 +35,8 @@ const CURRICULO_POR_AREA = new Map<string, CurriculoObjectPath>([
   ["analise-de-dados", "Curriculo-ATS-Analise-de-Dados-Mudar-de-Empresa.docx"],
   ["comercial", "Curriculo-ATS-Comercial-Mudar-de-Empresa.docx"],
   ["administrativo", "Curriculo-ATS-Administrativo-Mudar-de-Empresa.docx"],
+  ["customer-success", "Curriculo-ATS-Customer-Success-Mudar-de-Empresa.docx"],
+  ["marketing", "Curriculo-ATS-Marketing-Mudar-de-Empresa.docx"],
 ]);
 
 /** Devolve o modelo de currículo da área (independente da trilha), ou `null` se a área não existir. */

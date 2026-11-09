@@ -30,7 +30,7 @@ describe("resolveGuiaPdf (allowlist área x trilha)", () => {
 
   it("todo caminho da allowlist de storage é alcançável por algum par área/trilha", () => {
     const alcancaveis = new Set<string>();
-    for (const area of ["financeiro", "analise-de-dados", "comercial", "administrativo"]) {
+    for (const area of ["financeiro", "analise-de-dados", "comercial", "administrativo", "marketing", "customer-success"]) {
       for (const trilha of ["crescer", "mudar"]) {
         const p = resolveGuiaPdf(area, trilha);
         if (p) alcancaveis.add(p);
@@ -51,7 +51,7 @@ describe("resolveCurriculoDocx (um modelo por área, independente da trilha)", (
   });
 
   it("toda área que tem guia (em qualquer trilha) tem currículo", () => {
-    for (const area of ["financeiro", "analise-de-dados", "comercial", "administrativo"]) {
+    for (const area of ["financeiro", "analise-de-dados", "comercial", "administrativo", "marketing", "customer-success"]) {
       for (const trilha of ["crescer", "mudar"]) {
         expect(resolveGuiaPdf(area, trilha)).not.toBeNull();
         expect(resolveCurriculoDocx(area)).not.toBeNull();
@@ -67,7 +67,7 @@ describe("resolveCurriculoDocx (um modelo por área, independente da trilha)", (
   });
 
   it("todo caminho de currículo da allowlist de storage é alcançável por alguma área", () => {
-    const alcancaveis = ["financeiro", "analise-de-dados", "comercial", "administrativo"].map((a) => resolveCurriculoDocx(a));
+    const alcancaveis = ["financeiro", "analise-de-dados", "comercial", "administrativo", "marketing", "customer-success"].map((a) => resolveCurriculoDocx(a));
     expect([...alcancaveis].sort()).toEqual([...CURRICULO_OBJECT_PATHS].sort());
   });
 });

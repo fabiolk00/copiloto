@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin()),
   title: SEO_TITLE_HOME,
   description:
-    "Guias digitais por profissão (Financeiro, Análise de Dados, Comercial, Administrativo) com etapas semanais e prompts de IA prontos para aplicar.",
+    "Guias digitais por profissão (Financeiro, Análise de Dados, Comercial, Administrativo, Marketing, Customer Success) com etapas semanais e prompts de IA prontos para aplicar.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

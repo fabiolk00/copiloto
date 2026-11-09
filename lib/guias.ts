@@ -4,7 +4,7 @@ export type Trilha = "crescer" | "mudar";
 export type Area = {
   slug: string;
   name: string;
-  roman: "I" | "II" | "III" | "IV";
+  roman: "I" | "II" | "III" | "IV" | "V" | "VI";
   /** Accent color for this profession, used only in small details (dot, rail, labels). */
   c: string;
   /** Darker, text-safe variant of the accent color. */
@@ -291,6 +291,104 @@ export const AREAS: Area[] = [
       "Sim. As etapas partem de onde você está, seja em recepção, secretariado, compras, RH operacional ou backoffice. Os exercícios se ajustam ao seu momento.",
     ],
   },
+  {
+    slug: "marketing",
+    name: "Marketing",
+    roman: "V",
+    c: "#B5577A",
+    ct: "#A03A5C",
+    tint: "#F3E2E8",
+    h1: "Do post e do relatório para a mesa onde o investimento é decidido.",
+    sub: "Um guia em três partes para quem trabalha com marketing e quer que o seu trabalho seja visto como resultado, não só como entrega. Com prompts prontos para usar a IA em conteúdo, análise de campanha e relatórios.",
+    heroSub: {
+      crescer: "Um guia em três partes para quem quer crescer no marketing dentro da empresa onde já está, com etapas semanais e prompts prontos para usar a IA nas tarefas que mais tomam o seu tempo.",
+      mudar: "Um guia em três partes para quem quer se candidatar a novas vagas de marketing, com etapas semanais e prompts prontos para organizar portfólio, currículo e entrevistas."
+    },
+    bonus: "",
+    bonusD: "",
+    honestT: "Este guia vai te ajudar a estar mais perto de uma promoção.",
+    honest: "Ele não substitui experiência nem garante orçamento maior. O que ele faz é organizar a sua próxima fase em etapas pequenas e mostrar onde a IA tira peso da execução repetitiva para sobrar tempo para análise e planejamento.",
+    gives: [
+      "Diagnóstico de onde você está hoje no marketing",
+      "Três partes com etapas semanais curtas",
+      "Páginas de reflexão e exercícios práticos",
+      "Prompts prontos para conteúdo, campanhas e relatórios de resultado",
+      "Roteiro para a conversa de carreira com a sua liderança"
+    ],
+    parts: [
+      "Enxergar quanto da sua semana vai para execução repetitiva e abrir espaço para análise e planejamento.",
+      "Automatizar uma tarefa com IA e transformar os números da campanha em recomendação de investimento.",
+      "Mostrar o resultado, abrir a conversa de carreira e definir os próximos seis meses."
+    ],
+    parteIII: {
+      crescer: { titulo: "Ser chamado quando o orçamento é decidido", desc: "Levar recomendações de investimento com base nos números e negociar o próximo nível com a sua liderança." },
+      mudar: { titulo: "Levar os seus resultados para outra empresa", desc: "Transformar campanhas em casos de portfólio com números reais, mirar vagas de analista pleno ou coordenação e preparar a entrevista." }
+    },
+    prompts: [
+      [
+        "Transformar números em recomendação",
+        "Abaixo estão os resultados da campanha [nome], anonimizados. Aponte o que funcionou, o que não funcionou e uma recomendação de onde investir no próximo mês, em até 5 linhas.\n\n[colar dados]"
+      ],
+      [
+        "Planejar um mês de conteúdo",
+        "Monte um calendário de 4 semanas para [marca/tema], com 3 pilares de conteúdo, formato e objetivo de cada post. Público: [descrever]."
+      ],
+      [
+        "Resumir o relatório para a diretoria",
+        "Resuma o relatório abaixo em 3 pontos para a diretoria: resultado, causa provável e próxima decisão. Sem jargão.\n\n[colar relatório]"
+      ]
+    ],
+    faq1: ["Serve para conteúdo, performance e CRM?","Sim. As etapas partem do que você já faz hoje e os exercícios se ajustam à sua frente, seja conteúdo, mídia paga, CRM ou marca."],
+  },
+  {
+    slug: "customer-success",
+    name: "Customer Success",
+    roman: "VI",
+    c: "#A8873A",
+    ct: "#7A5C12",
+    tint: "#F1E8D2",
+    h1: "Da fila de chamados para a conta que a empresa quer proteger.",
+    sub: "Um guia em três partes para quem trabalha com Customer Success e quer sair do modo apagar incêndio. Com prompts prontos para usar a IA em onboarding, reuniões de resultado e análise de risco de churn.",
+    heroSub: {
+      crescer: "Um guia em três partes para quem quer crescer em Customer Success dentro da empresa onde já está, com etapas semanais e prompts prontos para usar a IA nas tarefas que mais tomam o seu tempo.",
+      mudar: "Um guia em três partes para quem quer se candidatar a novas vagas de Customer Success, com etapas semanais e prompts prontos para organizar currículo, LinkedIn e entrevistas."
+    },
+    bonus: "",
+    bonusD: "",
+    honestT: "Este guia vai te ajudar a estar mais perto de uma promoção.",
+    honest: "Ele não substitui experiência nem reduz o churn sozinho. O que ele faz é organizar a sua próxima fase em etapas pequenas e mostrar onde a IA tira peso do atendimento repetitivo para sobrar tempo para antecipar problemas.",
+    gives: [
+      "Diagnóstico de onde você está hoje em Customer Success",
+      "Três partes com etapas semanais curtas",
+      "Páginas de reflexão e exercícios práticos",
+      "Prompts prontos para onboarding, reuniões de resultado e risco de churn",
+      "Roteiro para a conversa de carreira com a sua liderança"
+    ],
+    parts: [
+      "Enxergar quanto da sua semana vai para apagar incêndio e abrir espaço para antecipar problemas.",
+      "Automatizar uma tarefa com IA e montar uma visão de risco da sua carteira.",
+      "Mostrar o resultado na retenção, abrir a conversa de carreira e definir os próximos seis meses."
+    ],
+    parteIII: {
+      crescer: { titulo: "Assumir as contas estratégicas", desc: "Usar a sua visão de risco da carteira como prova de resultado e negociar o próximo nível com a sua liderança." },
+      mudar: { titulo: "Levar a sua retenção para outra empresa", desc: "Traduzir churn, NPS e onboarding em linhas de currículo com números, mirar vagas de CSM sênior e preparar a entrevista." }
+    },
+    prompts: [
+      [
+        "Preparar uma reunião de resultados",
+        "Monte a pauta de uma reunião de 30 minutos com o cliente [segmento], a partir dos dados de uso abaixo (anonimizados): o que melhorou, o que preocupa e uma próxima ação conjunta.\n\n[colar dados]"
+      ],
+      [
+        "Identificar risco de churn",
+        "Analise os sinais abaixo de uma conta (uso, chamados, NPS), já anonimizados. Classifique o risco como baixo, médio ou alto e sugira uma ação para esta semana.\n\n[colar sinais]"
+      ],
+      [
+        "Responder um cliente insatisfeito",
+        "Escreva uma resposta curta para um cliente que reclamou de [problema]. Reconheça o problema, explique o próximo passo com prazo e evite promessas que não posso cumprir."
+      ]
+    ],
+    faq1: ["Serve para suporte, atendimento e CSM?","Sim. As etapas partem do que você já faz hoje, seja atendimento, onboarding ou gestão de carteira. Os exercícios se ajustam ao seu momento."],
+  },
 ];
 
 export function getAreaBySlug(slug: string): Area | undefined {
@@ -319,6 +417,8 @@ export const PREVIEW_PASTA: Record<string, string> = {
   "analise-de-dados": "dados",
   comercial: "comercial",
   administrativo: "administrativo",
+  marketing: "marketing",
+  "customer-success": "cs",
 };
 
 export const GUARANTEES = [
