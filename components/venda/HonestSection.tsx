@@ -6,7 +6,7 @@ export default function HonestSection({ area }: { area: Area }) {
       <div className="bg-[#EDE4D6] rounded-[18px] md:rounded-[28px] px-5 py-6 md:p-[72px] md:px-20 grid grid-cols-1 md:grid-cols-[200px_minmax(0,1fr)] gap-4 md:gap-12">
         <div className="flex flex-col gap-5">
           <div className="flex items-center gap-2.5 text-sm text-[#645950]">
-            <span className="font-serif text-lg text-[#8C5E1E]">03</span>
+            <span className="font-serif text-lg text-[#7A5214]">03</span>
             <span className="w-6 h-px bg-[#B8A891]" />
           </div>
           <span className="text-[15px] text-[#645950]">Uma palavra honesta</span>

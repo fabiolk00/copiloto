@@ -78,7 +78,7 @@ export default function Header() {
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
             aria-expanded={menuOpen}
-            aria-label={menuOpen ? "Fechar navegação" : "Abrir navegação"}
+            aria-controls="menu-mobile"
             className="md:hidden min-h-12 pl-2 border-0 bg-transparent cursor-pointer flex items-center gap-2 text-[15px] font-medium text-[#2A2420]"
           >
             {menuOpen ? "Fechar" : "Menu"}
@@ -91,7 +91,7 @@ export default function Header() {
       </div>
 
       {menuOpen && (
-        <nav className="md:hidden absolute left-0 right-0 top-full bg-[#F5EFE6] px-5 pt-1 pb-4 flex flex-col border-t border-[#E6DCCD] shadow-[0_16px_32px_rgba(60,40,20,.10)]">
+        <nav id="menu-mobile" aria-label="Seções da página" className="md:hidden absolute left-0 right-0 top-full bg-[#F5EFE6] px-5 pt-1 pb-4 flex flex-col border-t border-[#E6DCCD] shadow-[0_16px_32px_rgba(60,40,20,.10)]">
           {NAV_ITEMS.map(({ id, num, label }) => {
             const current = activeSection === id;
             return (
