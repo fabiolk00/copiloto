@@ -19,10 +19,20 @@ Registro para atribuir causa a variações no Search Console (OPS-05).
 | Alvos de toque de 48 px (rodapé, breadcrumb, menu, copiar prompt) | MOB-01 | Lighthouse a11y |
 | `/sobre`, `/privacidade`, `/termos` criados como rascunho: 404 em produção, `noindex` e aviso em preview | Publicar só após revisão (CON-04) | n/a |
 
+## 2026-11-09: ciclo 2 (diretrizes do revisor)
+
+| Mudança | Motivo |
+|---|---|
+| Preço exibido e `Offer.price` saem de `precoDaArea()`/`formatarPreco()` em `lib/guias.ts`, a mesma fonte do checkout | Página e JSON-LD não podem divergir (SD-02); antes havia "R$ 29,90" escrito à mão em 4 componentes |
+| Links cruzados entre páginas institucionais só quando o destino está visível; ambiente lido por chamada | Nenhum link interno para URL 404 em produção |
+| `/sobre` sem dados pessoais nem experiência presumida; `/privacidade` com transferência internacional e direitos do titular | E-E-A-T honesto; revisão jurídica pendente |
+| Testes sobre o HTML renderizado de cada rota (preço, [n], links) e host canônico com APP_URL ausente | Regressão automática |
+| `package-lock.json` sincronizado (commit separado) | `npm ci` falhava |
+
 ## Pendências humanas (bloqueiam publicação de partes do plano)
 
-1. `/sobre`: confirmar nome, cargo, experiência, foto, LinkedIn e o processo real de revisão dos guias. Publicar trocando `PAGINAS_INSTITUCIONAIS.sobre.publicada` em `lib/institucional.ts`.
-2. `/privacidade` e `/termos`: revisão jurídica (controlador e fornecedor, base legal, retenção, cookies, política de reembolso e arrependimento). Publicar da mesma forma.
+1. `/sobre`: confirmar nome, cargo, tempo de experiência, foto, LinkedIn, fontes de pesquisa e quem validou cada área (todos marcados TODO_CONFIRMAR). Publicar trocando `PAGINAS_INSTITUCIONAIS.sobre.publicada` em `lib/institucional.ts`.
+2. `/privacidade` e `/termos`: revisão jurídica (controlador e fornecedor, base legal, países e mecanismo da transferência internacional, retenção, cookies, DPO, política de reembolso e arrependimento). Publicar da mesma forma.
 3. FAQ "Há garantia ou reembolso?": sem política real definida; não publicada.
 4. Número real de prompts por guia (o placeholder foi removido; dá para voltar a citar o número quando houver).
 5. Perfis oficiais para `sameAs` da Organization.
