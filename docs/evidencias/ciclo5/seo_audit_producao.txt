@@ -1,0 +1,7 @@
+https://www.copilotocarreira.com.br/administrativo falhas= []
+https://www.copilotocarreira.com.br/analise-de-dados falhas= []
+https://www.copilotocarreira.com.br/comercial falhas= []
+https://www.copilotocarreira.com.br/customer-success falhas= []
+https://www.copilotocarreira.com.br/financeiro falhas= []
+https://www.copilotocarreira.com.br/ falhas= [('CWV-04', 'P1', 'Primeira imagem (provável LCP) sem loading=lazy')]
+https://www.copilotocarreira.com.br/marketing falhas= []
