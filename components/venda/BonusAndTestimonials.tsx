@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { BRAND_NAME } from "@/lib/guias";
 
-type DepoimentoImagem = {
+export type DepoimentoImagem = {
   tipo: "imagem";
   src: string;
   largura: number;
@@ -12,7 +12,7 @@ type DepoimentoImagem = {
   confirmado: boolean;
 };
 
-type DepoimentoTexto = {
+export type DepoimentoTexto = {
   tipo: "texto";
   titulo: string;
   texto: string;
@@ -23,7 +23,7 @@ type DepoimentoTexto = {
 };
 
 /** Depoimentos exibidos, na ordem. `confirmado: true` esconde um item sem apagá-lo. */
-const DEPOIMENTOS: (DepoimentoImagem | DepoimentoTexto)[] = [
+export const DEPOIMENTOS: (DepoimentoImagem | DepoimentoTexto)[] = [
   {
     tipo: "imagem",
     src: "/depoimentos/eder.png",
@@ -72,8 +72,49 @@ const DEPOIMENTOS: (DepoimentoImagem | DepoimentoTexto)[] = [
   },
 ];
 
-const CARD =
-  "flex-none w-[300px] snap-start md:w-auto md:flex-[1_1_300px] max-w-[520px] bg-[#FBF8F2] border border-[#E2D8C9] rounded-[20px]";
+const CARD_BASE = "bg-[#FBF8F2] border border-[#E2D8C9] rounded-[20px]";
+const CARD = `flex-none w-[300px] snap-start md:w-auto md:flex-[1_1_300px] max-w-[520px] ${CARD_BASE}`;
+
+/** Um depoimento (print ou texto). `className` define a largura no contêiner (carrossel ou lista). */
+export function DepoimentoCard({
+  d,
+  className = CARD,
+  sizes = "(max-width: 767px) 300px, 520px",
+}: {
+  d: DepoimentoImagem | DepoimentoTexto;
+  className?: string;
+  sizes?: string;
+}) {
+  return d.tipo === "imagem" ? (
+    <figure className={`${className} m-0 p-4 flex flex-col gap-2.5`}>
+      <Image
+        src={d.src}
+        width={d.largura}
+        height={d.altura}
+        alt={d.alt}
+        sizes={sizes}
+        className="w-full h-auto rounded-[10px] border border-[#EDE4D6] bg-white"
+      />
+      <figcaption className="text-[13px] text-[#645950]">{d.legenda}</figcaption>
+    </figure>
+  ) : (
+    <figure className={`${className} m-0 p-5 md:p-6 flex flex-col gap-4`}>
+      <blockquote className="m-0 flex flex-col gap-4">
+        <p className="m-0 font-serif text-[19px] md:text-2xl leading-[1.25]">“{d.titulo}”</p>
+        <p className="m-0 text-sm md:text-base leading-[1.5] md:leading-[1.55] text-[#4A403A]">{d.texto}</p>
+      </blockquote>
+      <figcaption className="flex items-center gap-3">
+        <Image src={d.avatar.src} width={48} height={48} alt={d.avatar.alt} className="rounded-full" />
+        <span className="flex flex-col">
+          <span className="text-[15px] font-semibold">{d.nome}</span>
+          <span className="text-sm text-[#645950]">{d.cargo}</span>
+        </span>
+      </figcaption>
+    </figure>
+  );
+}
+
+export const CARD_LISTA = `w-full ${CARD_BASE}`;
 
 export default function BonusAndTestimonials() {
   const visiveis = DEPOIMENTOS.filter((d) => d.confirmado);
@@ -91,41 +132,9 @@ export default function BonusAndTestimonials() {
       </div>
 
       <div className="no-scrollbar flex md:flex-wrap gap-3 md:gap-4 items-start overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none px-5 md:px-0 scroll-px-5">
-        {visiveis.map((d) =>
-          d.tipo === "imagem" ? (
-            <figure key={d.src} className={`${CARD} m-0 p-4 flex flex-col gap-2.5`}>
-              <Image
-                src={d.src}
-                width={d.largura}
-                height={d.altura}
-                alt={d.alt}
-                sizes="(max-width: 640px) 100vw, 520px"
-                className="w-full h-auto rounded-[10px] border border-[#EDE4D6] bg-white"
-              />
-              <figcaption className="text-[13px] text-[#645950]">{d.legenda}</figcaption>
-            </figure>
-          ) : (
-            <figure key={d.nome} className={`${CARD} m-0 p-5 md:p-6 flex flex-col gap-4`}>
-              <blockquote className="m-0 flex flex-col gap-4">
-                <p className="m-0 font-serif text-[19px] md:text-2xl leading-[1.25]">“{d.titulo}”</p>
-                <p className="m-0 text-sm md:text-base leading-[1.5] md:leading-[1.55] text-[#4A403A]">{d.texto}</p>
-              </blockquote>
-              <figcaption className="flex items-center gap-3">
-                <Image
-                  src={d.avatar.src}
-                  width={48}
-                  height={48}
-                  alt={d.avatar.alt}
-                  className="rounded-full"
-                />
-                <span className="flex flex-col">
-                  <span className="text-[15px] font-semibold">{d.nome}</span>
-                  <span className="text-sm text-[#645950]">{d.cargo}</span>
-                </span>
-              </figcaption>
-            </figure>
-          ),
-        )}
+        {visiveis.map((d) => (
+          <DepoimentoCard key={d.tipo === "imagem" ? d.src : d.nome} d={d} />
+        ))}
       </div>
     </div>
   );

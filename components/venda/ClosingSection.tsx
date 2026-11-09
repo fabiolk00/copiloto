@@ -1,4 +1,4 @@
-import { GUARANTEES, type Area } from "@/lib/guias";
+import { GUARANTEES, formatarPreco, precoDaArea, type Area } from "@/lib/guias";
 import ClosingTrilhaLine from "./ClosingTrilhaLine";
 import PixCheckout from "./PixCheckout";
 
@@ -19,7 +19,7 @@ export default function ClosingSection({ area }: { area: Area }) {
           </h2>
           <div className="flex flex-wrap items-baseline gap-2.5">
             <span className="font-serif text-[40px] md:text-[56px] leading-none tracking-[-.02em] whitespace-nowrap">
-              R$ 29,90
+              {formatarPreco(precoDaArea(area))}
             </span>
             <span className="text-[15px] text-[#645950]">pagamento único</span>
           </div>

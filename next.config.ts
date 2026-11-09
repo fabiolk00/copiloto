@@ -38,7 +38,11 @@ const SECURITY_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    // Sem 2048/3840 (padrão do Next): as maiores imagens do site têm até ~1200 px
+    // de largura útil, e variantes de 3840 px só desperdiçam banda no mobile (CWV-04).
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+  },
   turbopack: {
     rules: {
       "*.css": {

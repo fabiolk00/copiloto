@@ -35,6 +35,22 @@ export const SUPPORT_EMAIL = "fabio.kro@outlook.com";
 /** Single fixed price for any guide/area, in BRL. Computed server-side only — never trust a price from the client. */
 export const PRICE_BRL = 29.9;
 
+/**
+ * Preço de um guia. Hoje é o mesmo para todas as áreas porque o checkout
+ * (app/api/pix/create) cobra PRICE_BRL para qualquer slug. Toda exibição de
+ * preço e o Offer do JSON-LD passam por aqui, então página e dado estruturado
+ * não divergem (SD-02). Se um dia houver preço por área, muda só esta função
+ * (e o checkout).
+ */
+export function precoDaArea(_area: Pick<Area, "slug">): number {
+  return PRICE_BRL;
+}
+
+/** "R$ 29,90" com espaço não separável (não quebra linha entre símbolo e valor). */
+export function formatarPreco(valor: number): string {
+  return `R$\u00a0${valor.toFixed(2).replace(".", ",")}`;
+}
+
 export const TRILHAS: { id: Trilha; rotulo: string; descricao: string; curta: string }[] = [
   {
     id: "crescer",

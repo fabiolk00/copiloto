@@ -18,8 +18,8 @@ export default function IaSection({ area }: { area: Area }) {
           </div>
           <p className="m-0 text-sm md:text-lg leading-[1.5] md:leading-[1.65] text-[#DDD3C6]">
             Três exemplos do guia. Copie, troque o que está entre colchetes e use na
-            ferramenta de IA que você já tem. O guia completo traz [n] prompts organizados
-            por etapa.
+            ferramenta de IA que você já tem. O guia completo traz outros prompts,
+            organizados por etapa.
           </p>
         </div>
 

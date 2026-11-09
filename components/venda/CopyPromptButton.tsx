@@ -23,7 +23,7 @@ export default function CopyPromptButton({ text }: { text: string }) {
     <button
       type="button"
       onClick={handleCopy}
-      className="w-full min-h-11 md:min-h-12 rounded-xl border border-[#6A5E55] text-[15px] font-semibold cursor-pointer"
+      className="w-full min-h-12 rounded-xl border border-[#6A5E55] text-[15px] font-semibold cursor-pointer"
       style={{
         background: copied ? "#F5EFE6" : "transparent",
         color: copied ? "#2A2420" : "#F5EFE6",

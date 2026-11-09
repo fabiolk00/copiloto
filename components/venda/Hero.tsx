@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { Area } from "@/lib/guias";
-import { PREVIEW_PASTA } from "@/lib/guias";
+import { PREVIEW_PASTA, formatarPreco, precoDaArea } from "@/lib/guias";
 import CapaLivro from "./CapaLivro";
 import CtaLink from "./CtaLink";
 import TrilhaSelector from "./TrilhaSelector";
@@ -53,7 +53,7 @@ export default function Hero({ area }: { area: Area }) {
             href="#fechamento"
             className="min-h-[52px] md:min-h-[58px] px-[30px] rounded-xl md:rounded-2xl bg-[#8C5E1E] text-[#FBF8F2] no-underline text-base md:text-[17px] font-semibold flex items-center justify-center hover:bg-[#6F4914] hover:text-[#FBF8F2]"
           >
-            Quero o guia · R$ 29,90
+            Quero o guia · {formatarPreco(precoDaArea(area))}
           </CtaLink>
           <span className="text-sm text-[#645950] text-center">
             Pagamento único · PDF e currículo no seu e-mail
@@ -71,6 +71,8 @@ export default function Hero({ area }: { area: Area }) {
           width={64}
           height={80}
           alt={`Capa do guia de ${area.name}`}
+          // Acima da dobra no mobile: sem lazy (CWV-04). Não é o LCP (o H1 é), então sem preload.
+          loading="eager"
           className="flex-none w-16 h-20 object-cover rounded-md shadow-[0_1px_2px_rgba(60,40,20,.08),0_4px_10px_rgba(60,40,20,.10)]"
         />
         <div className="flex flex-col gap-0.5">

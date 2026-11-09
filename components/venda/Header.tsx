@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { BRAND_NAME } from "@/lib/guias";
+import { BRAND_NAME, PRICE_BRL, formatarPreco } from "@/lib/guias";
 import LogoSimbolo from "@/components/LogoSimbolo";
 
 const NAV_ITEMS = [
@@ -48,7 +48,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-10 bg-[#F5EFE6]/94 backdrop-blur-[8px] border-b border-[#E6DCCD]">
       <div className="max-w-[1200px] mx-auto h-14 md:h-[72px] px-5 md:px-10 flex items-center justify-between gap-6">
-        <Link href="/" className="flex items-center gap-[9px] text-[#2A2420] no-underline">
+        <Link href="/" className="min-h-12 flex items-center gap-[9px] text-[#2A2420] no-underline">
           <LogoSimbolo size={22} />
           <span className="font-serif text-[17px] md:text-[19px] tracking-[-0.015em] whitespace-nowrap">{BRAND_NAME}</span>
         </Link>
@@ -78,8 +78,8 @@ export default function Header() {
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
             aria-expanded={menuOpen}
-            aria-label={menuOpen ? "Fechar navegação" : "Abrir navegação"}
-            className="md:hidden min-h-11 pl-2 border-0 bg-transparent cursor-pointer flex items-center gap-2 text-[15px] font-medium text-[#2A2420]"
+            aria-controls="menu-mobile"
+            className="md:hidden min-h-12 pl-2 border-0 bg-transparent cursor-pointer flex items-center gap-2 text-[15px] font-medium text-[#2A2420]"
           >
             {menuOpen ? "Fechar" : "Menu"}
             <span className="flex flex-col gap-[5px]" aria-hidden="true">
@@ -91,7 +91,7 @@ export default function Header() {
       </div>
 
       {menuOpen && (
-        <nav className="md:hidden absolute left-0 right-0 top-full bg-[#F5EFE6] px-5 pt-1 pb-4 flex flex-col border-t border-[#E6DCCD] shadow-[0_16px_32px_rgba(60,40,20,.10)]">
+        <nav id="menu-mobile" aria-label="Seções da página" className="md:hidden absolute left-0 right-0 top-full bg-[#F5EFE6] px-5 pt-1 pb-4 flex flex-col border-t border-[#E6DCCD] shadow-[0_16px_32px_rgba(60,40,20,.10)]">
           {NAV_ITEMS.map(({ id, num, label }) => {
             const current = activeSection === id;
             return (
@@ -117,7 +117,7 @@ export default function Header() {
             onClick={() => setMenuOpen(false)}
             className="mt-3 min-h-12 rounded-xl bg-[#8C5E1E] text-[#FBF8F2] no-underline text-base font-semibold flex items-center justify-center"
           >
-            Quero o guia · R$ 29,90
+            Quero o guia · {formatarPreco(PRICE_BRL)}
           </a>
         </nav>
       )}
