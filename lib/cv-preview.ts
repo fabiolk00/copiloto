@@ -1,5 +1,5 @@
 // Dados da prévia do currículo ATS, extraídos dos .docx "Curriculo-ATS-{Área}-Mudar-de-Empresa".
-// Chave = prefixo da área (financeiro | dados | comercial | administrativo).
+// Chave = prefixo da área (financeiro | dados | comercial | administrativo | marketing | cs).
 export const CV_PREVIEW = {
   "financeiro": {
     "headline": "Analista Financeiro · Fechamento · Conciliação · Análise de variação · FP&A · Power BI",
@@ -67,6 +67,40 @@ export const CV_PREVIEW = {
     "bullets": [
       "Reduzi o retrabalho nos pedidos de 18 para 5 por mês com uma planilha de conferência padronizada.",
       "Organizei o arquivo de contratos de 120 clientes e padronizei a nomenclatura."
+    ]
+  },
+  "marketing": {
+    "headline": "Analista de Marketing · Conteúdo · Campanhas · SEO · E-mail marketing · Google Analytics",
+    "contact": "seu.email@dominio.com  |  +55 00 00000-0000  |  Cidade, Estado, Brasil  |  linkedin.com/in/seu-perfil",
+    "resumo": "Cargo com X anos de experiência em conteúdo / performance / CRM e e-mail / marca. Planejo e executo campanhas, calendário de conteúdo e e-mail marketing, e analiso resultados com Google Analytics e planilhas para decidir onde investir. Resultado recente: aumentei o alcance orgânico em X% em Y meses.",
+    "comp": [
+      "Conteúdo e redes sociais",
+      "Performance e CRM"
+    ],
+    "job": [
+      "Analista de Marketing",
+      "MM/AAAA – Atual"
+    ],
+    "bullets": [
+      "Aumentei o alcance orgânico em 35% em seis meses com um calendário de conteúdo por tema.",
+      "Criei uma sequência de e-mails que subiu a taxa de abertura de 18% para 27%."
+    ]
+  },
+  "cs": {
+    "headline": "Customer Success Manager · Onboarding · Retenção · Gestão de carteira · NPS · CRM",
+    "contact": "seu.email@dominio.com  |  +55 00 00000-0000  |  Cidade, Estado, Brasil  |  linkedin.com/in/seu-perfil",
+    "resumo": "Cargo com X anos de experiência em Customer Success / atendimento / gestão de carteira. Conduzo onboarding, acompanhamento de contas, renovações e reuniões de resultados, usando Zendesk / Salesforce / HubSpot e indicadores como churn e NPS (Net Promoter Score). Antecipo riscos com dados de uso e atendimento. Resultado recente: reduzi o churn da carteira de X% para Y%.",
+    "comp": [
+      "Relacionamento com clientes",
+      "Retenção e indicadores"
+    ],
+    "job": [
+      "Customer Success Manager",
+      "MM/AAAA – Atual"
+    ],
+    "bullets": [
+      "Reduzi o churn da carteira de 8% para 5% ao ano com acompanhamento por risco.",
+      "Estruturei o onboarding de 30 dias, cortando o tempo até o primeiro uso de 21 para 12 dias."
     ]
   }
 } as const;
