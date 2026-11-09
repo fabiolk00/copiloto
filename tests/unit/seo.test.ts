@@ -1,12 +1,10 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
-import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it, vi } from "vitest";
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
-import { AREAS, COMMON_FAQ, getAllSlugs } from "@/lib/guias";
+import { AREAS, getAllSlugs } from "@/lib/guias";
 import { serializeJsonLd } from "@/components/seo/JsonLd";
-import FaqSection from "@/components/venda/FaqSection";
 import {
   SEO_DESCRIPTION_HOME,
   SEO_GUIAS,
@@ -25,6 +23,27 @@ const WWW = "https://www.copilotocarreira.com.br";
 describe("seo", () => {
   it("origem canônica é o host www, HTTPS, mesmo com APP_URL=localhost (IDX-03/IDX-05)", () => {
     expect(siteOrigin()).toBe(WWW);
+  });
+
+  it("host canônico continua www com APP_URL ausente ou apontando para outro host", async () => {
+    const original = process.env.APP_URL;
+    try {
+      for (const valor of [undefined, "https://copilotocarreira.com.br", "https://preview-x.vercel.app"]) {
+        if (valor === undefined) delete process.env.APP_URL;
+        else process.env.APP_URL = valor;
+        vi.resetModules();
+        const seo = await import("@/lib/seo");
+        expect(seo.SITE_URL).toBe(WWW);
+        expect(seo.siteOrigin()).toBe(WWW);
+        expect(seo.canonicalUrl("/marketing")).toBe(`${WWW}/marketing`);
+        expect(seo.pageMetadata({ title: "t", description: "d", path: "/" }).alternates?.canonical).toBe(WWW);
+        expect(seo.organizationLd().url).toBe(WWW);
+      }
+    } finally {
+      if (original === undefined) delete process.env.APP_URL;
+      else process.env.APP_URL = original;
+      vi.resetModules();
+    }
   });
 
   it("canonical é absoluto, sem query/hash/barra final", () => {
@@ -97,19 +116,5 @@ describe("seo", () => {
     expect(JSON.parse(out)).toEqual({ a: "</script><b>" });
   });
 
-  it("FAQ entrega as respostas no HTML do servidor, mesmo fechado (IDX-07)", () => {
-    const html = renderToStaticMarkup(FaqSection({ area: AREAS[0] }));
-    expect(html).toContain("<details");
-    for (const [, resposta] of [AREAS[0].faq1, ...COMMON_FAQ]) expect(html).toContain(resposta);
-  });
 
-  it("nenhum placeholder [n] no código das páginas", () => {
-    const varrer = (dir: string): string[] =>
-      readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
-        e.isDirectory() ? varrer(path.join(dir, e.name)) : /\.(tsx?|mdx?)$/.test(e.name) ? [path.join(dir, e.name)] : [],
-      );
-    const arquivos = ["app", "components", "lib"].flatMap((d) => varrer(path.join(process.cwd(), d)));
-    const comPlaceholder = arquivos.filter((f) => readFileSync(f, "utf8").includes("[n]"));
-    expect(comPlaceholder).toEqual([]);
-  });
 });

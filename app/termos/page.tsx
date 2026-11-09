@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import PaginaInstitucionalLayout from "@/components/site/PaginaInstitucional";
 import { BRAND_NAME, SUPPORT_EMAIL } from "@/lib/guias";
-import { paginaPublicada } from "@/lib/institucional";
+import { paginaPublicada, paginaVisivel } from "@/lib/institucional";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -12,14 +13,15 @@ export const metadata: Metadata = pageMetadata({
   noindex: !paginaPublicada("termos"),
 });
 
-/* ESBOÇO. Só publicar após revisão jurídica do dono (PAGINAS_INSTITUCIONAIS.termos.publicada). */
+/*
+ * RASCUNHO. Só publicar após revisão jurídica do dono (PAGINAS_INSTITUCIONAIS.termos.publicada).
+ * Não há política de reembolso ou garantia definida: nada foi criado aqui.
+ */
 export default function TermosPage() {
   return (
     <PaginaInstitucionalLayout pagina="termos" titulo="Termos de uso">
       <h2>O produto</h2>
-      <p>
-        Guia digital em PDF, por profissão, acompanhado de um modelo de currículo em .docx. Pagamento único via Pix.
-      </p>
+      <p>Guia digital em PDF, por profissão, acompanhado de um modelo de currículo em .docx. Pagamento único via Pix.</p>
 
       <h2>Entrega</h2>
       <p>
@@ -30,11 +32,8 @@ export default function TermosPage() {
       <h2>Licença de uso</h2>
       <p>Uso pessoal e intransferível. Não é permitido revender, redistribuir ou publicar o conteúdo.</p>
 
-      <h2>Arrependimento e reembolso</h2>
-      <p>
-        TODO_REVISAO_JURIDICA: política real de reembolso e aplicação do direito de arrependimento (CDC, art. 49) a
-        produto digital.
-      </p>
+      <h2>Reembolso e arrependimento</h2>
+      <p>TODO_REVISAO_JURIDICA: não há política definida pelo dono.</p>
 
       <h2>Limitação de responsabilidade</h2>
       <p>
@@ -42,9 +41,16 @@ export default function TermosPage() {
         específico.
       </p>
 
+      <h2>Dados pessoais</h2>
+      <p>
+        O tratamento de dados segue a{" "}
+        {paginaVisivel("privacidade") ? <Link href="/privacidade">Política de privacidade</Link> : "Política de privacidade"}.
+      </p>
+
       <h2>Contato</h2>
       <p>
-        <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>. TODO_REVISAO_JURIDICA: identificação do fornecedor.
+        <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>. Fornecedor: TODO_REVISAO_JURIDICA (nome ou razão
+        social e documento).
       </p>
     </PaginaInstitucionalLayout>
   );

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { Area } from "@/lib/guias";
-import { PREVIEW_PASTA } from "@/lib/guias";
+import { PREVIEW_PASTA, formatarPreco, precoDaArea } from "@/lib/guias";
 import CapaLivro from "./CapaLivro";
 import CtaLink from "./CtaLink";
 import TrilhaSelector from "./TrilhaSelector";
@@ -53,7 +53,7 @@ export default function Hero({ area }: { area: Area }) {
             href="#fechamento"
             className="min-h-[52px] md:min-h-[58px] px-[30px] rounded-xl md:rounded-2xl bg-[#8C5E1E] text-[#FBF8F2] no-underline text-base md:text-[17px] font-semibold flex items-center justify-center hover:bg-[#6F4914] hover:text-[#FBF8F2]"
           >
-            Quero o guia · R$ 29,90
+            Quero o guia · {formatarPreco(precoDaArea(area))}
           </CtaLink>
           <span className="text-sm text-[#645950] text-center">
             Pagamento único · PDF e currículo no seu e-mail

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { BRAND_NAME } from "@/lib/guias";
+import { BRAND_NAME, PRICE_BRL, formatarPreco } from "@/lib/guias";
 import LogoSimbolo from "@/components/LogoSimbolo";
 
 const NAV_ITEMS = [
@@ -117,7 +117,7 @@ export default function Header() {
             onClick={() => setMenuOpen(false)}
             className="mt-3 min-h-12 rounded-xl bg-[#8C5E1E] text-[#FBF8F2] no-underline text-base font-semibold flex items-center justify-center"
           >
-            Quero o guia · R$ 29,90
+            Quero o guia · {formatarPreco(PRICE_BRL)}
           </a>
         </nav>
       )}

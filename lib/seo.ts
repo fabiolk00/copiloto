@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BRAND_NAME, PREVIEW_PASTA, PRICE_BRL, SUPPORT_EMAIL, type Area } from "@/lib/guias";
+import { BRAND_NAME, PREVIEW_PASTA, SUPPORT_EMAIL, precoDaArea, type Area } from "@/lib/guias";
 
 /**
  * Origem canônica do site: SEMPRE o host www. A raiz sem www redireciona (308,
@@ -201,7 +201,7 @@ export const productLd = (area: Area) => ({
   offers: {
     "@type": "Offer",
     url: canonicalUrl(`/${area.slug}`),
-    price: PRICE_BRL.toFixed(2),
+    price: precoDaArea(area).toFixed(2),
     priceCurrency: "BRL",
     availability: "https://schema.org/InStock",
   },

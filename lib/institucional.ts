@@ -17,15 +17,18 @@ export const PAGINAS_INSTITUCIONAIS: Record<PaginaInstitucional, { rotulo: strin
   termos: { rotulo: "Termos", publicada: false },
 };
 
-const EM_PRODUCAO = process.env.VERCEL_ENV === "production";
+/** Lido a cada chamada (não no carregamento do módulo) para ser testável. */
+function emProducao(): boolean {
+  return process.env.VERCEL_ENV === "production";
+}
 
 export function paginaPublicada(p: PaginaInstitucional): boolean {
-  return PAGINAS_INSTITUCIONAIS[p].publicada;
+  return PAGINAS_INSTITUCIONAIS[p]?.publicada === true;
 }
 
 /** Visível = publicada, ou rascunho fora de produção (preview/dev, para revisão). */
 export function paginaVisivel(p: PaginaInstitucional): boolean {
-  return paginaPublicada(p) || !EM_PRODUCAO;
+  return paginaPublicada(p) || !emProducao();
 }
 
 export function paginasVisiveis(): PaginaInstitucional[] {

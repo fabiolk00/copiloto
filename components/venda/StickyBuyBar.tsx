@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PRICE_BRL } from "@/lib/guias";
+import { formatarPreco, precoDaArea } from "@/lib/guias";
 import CtaLink from "./CtaLink";
 
 /**
@@ -39,7 +39,7 @@ export default function StickyBuyBar({ area }: { area: string }) {
   }, []);
 
   const visivel = passouHero && !fechamentoVisivel;
-  const preco = PRICE_BRL.toFixed(2).replace(".", ",");
+  const preco = formatarPreco(precoDaArea({ slug: area }));
 
   return (
     <div
@@ -48,7 +48,7 @@ export default function StickyBuyBar({ area }: { area: string }) {
       style={{ transform: visivel ? "translateY(0)" : "translateY(110%)" }}
     >
       <div className="flex flex-col leading-tight">
-        <span className="font-serif text-xl">R$ {preco}</span>
+        <span className="font-serif text-xl">{preco}</span>
         <span className="text-xs text-[#645950]">PDF e currículo no seu e-mail</span>
       </div>
       <CtaLink

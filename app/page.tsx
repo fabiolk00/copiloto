@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BRAND_NAME, COMMON_FAQ } from "@/lib/guias";
+import { BRAND_NAME, COMMON_FAQ, PRICE_BRL, formatarPreco } from "@/lib/guias";
 import LogoSimbolo from "@/components/LogoSimbolo";
 import { JsonLd } from "@/components/seo/JsonLd";
 import GuiasCards from "@/components/site/GuiasCards";
@@ -69,7 +69,7 @@ export default function Home() {
             Guias de carreira em PDF com prompts de IA
           </h1>
           <p className="m-0 text-base md:text-lg leading-[1.55] text-[#4A403A]">
-            Um caminho de 8 semanas para a sua área, com prompts de IA prontos. Pagamento único de R$&nbsp;29,90.
+            Um caminho de 8 semanas para a sua área, com prompts de IA prontos. Pagamento único de {formatarPreco(PRICE_BRL)}.
           </p>
           <a
             href="#guias"
