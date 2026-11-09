@@ -22,7 +22,7 @@ export default function GuiaSection({ area }: { area: Area }) {
 
       <div className="flex flex-col gap-5 md:gap-7 min-w-0">
         <h2 className="px-5 md:px-0 m-0 font-serif font-normal text-[26px] md:text-[44px] leading-[1.1] tracking-[-.02em]">
-          O que você recebe
+          O que você recebe no guia de {area.name}
         </h2>
 
         <div className="order-2 md:order-none mx-5 md:mx-0 max-w-[680px] flex flex-col border-t border-[#E2D8C9]">
@@ -56,7 +56,7 @@ export default function GuiaSection({ area }: { area: Area }) {
                   width={480}
                   height={600}
                   alt={`Página ${Number(p.n)} do guia de ${area.name}: ${p.title}`}
-                  sizes="250px"
+                  sizes="(max-width: 767px) 168px, 250px"
                   className="w-full aspect-[4/5] object-cover rounded-lg shadow-[0_1px_2px_rgba(60,40,20,.08),0_6px_16px_rgba(60,40,20,.10)]"
                 />
               </div>

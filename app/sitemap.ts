@@ -1,12 +1,19 @@
 import type { MetadataRoute } from "next";
 import { getAllSlugs } from "@/lib/guias";
-import { canonicalUrl } from "@/lib/seo";
+import { PAGINAS_INSTITUCIONAIS, paginaPublicada, type PaginaInstitucional } from "@/lib/institucional";
+import { ATUALIZADO_EM, canonicalUrl } from "@/lib/seo";
 
 /**
- * Só URLs canônicas, 200 e indexáveis. `lastModified` omitido de propósito:
- * não há data real de alteração de conteúdo, e `new Date()` seria lastmod falso
- * (o Google passa a ignorar o campo). Reintroduzir quando houver data de edição real.
+ * Só URLs canônicas (host www), 200 e indexáveis (IDX-04). `lastModified` vem
+ * de ATUALIZADO_EM, que só muda quando o conteúdo muda de fato. Páginas
+ * institucionais entram apenas depois de publicadas (antes disso dão 404 em
+ * produção e são noindex em preview).
  */
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [canonicalUrl("/"), ...getAllSlugs().map((s) => canonicalUrl(`/${s}`))].map((url) => ({ url }));
+  const institucionais = (Object.keys(PAGINAS_INSTITUCIONAIS) as PaginaInstitucional[]).filter(paginaPublicada);
+  return [
+    { url: canonicalUrl("/"), lastModified: ATUALIZADO_EM.home },
+    ...getAllSlugs().map((s) => ({ url: canonicalUrl(`/${s}`), lastModified: ATUALIZADO_EM.guias })),
+    ...institucionais.map((p) => ({ url: canonicalUrl(`/${p}`), lastModified: ATUALIZADO_EM.institucional })),
+  ];
 }

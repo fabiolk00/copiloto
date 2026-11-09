@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { BRAND_NAME, getAllSlugs, getAreaBySlug } from "@/lib/guias";
+import { getAllSlugs, getAreaBySlug } from "@/lib/guias";
 import Header from "@/components/venda/Header";
 import Hero from "@/components/venda/Hero";
 import BonusAndTestimonials from "@/components/venda/BonusAndTestimonials";
@@ -11,7 +11,9 @@ import HonestSection from "@/components/venda/HonestSection";
 import FaqSection from "@/components/venda/FaqSection";
 import ClosingSection from "@/components/venda/ClosingSection";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { breadcrumbLd, pageMetadata, productLd } from "@/lib/seo";
+import { breadcrumbLd, ogImageGuia, pageMetadata, productLd, seoGuia } from "@/lib/seo";
+import Breadcrumb from "@/components/site/Breadcrumb";
+import GuiasCards from "@/components/site/GuiasCards";
 import StickyBuyBar from "@/components/venda/StickyBuyBar";
 import { TrilhaProvider } from "@/components/venda/TrilhaProvider";
 
@@ -27,10 +29,12 @@ export async function generateMetadata({
   const { area: slug } = await params;
   const area = getAreaBySlug(slug);
   if (!area) return {};
+  const seo = seoGuia(area);
   return pageMetadata({
-    title: `Guia de ${area.name} — ${BRAND_NAME}`,
-    description: area.sub,
+    title: seo.title,
+    description: seo.description,
     path: `/${area.slug}`,
+    image: ogImageGuia(area),
   });
 }
 
@@ -49,7 +53,7 @@ export default async function VendaPage({
       data={[
         productLd(area),
         breadcrumbLd([
-          { name: BRAND_NAME, path: "/" },
+          { name: "Início", path: "/" },
           { name: `Guia de ${area.name}`, path: `/${area.slug}` },
         ]),
       ]}
@@ -57,6 +61,7 @@ export default async function VendaPage({
       <TrilhaProvider areaSlug={area.slug}>
         <Header />
         <main className="max-md:overflow-x-clip">
+          <Breadcrumb atual={`Guia de ${area.name}`} />
           <Hero area={area} />
           <BonusAndTestimonials />
           <div className="relative max-w-[1200px] mx-auto px-10">
@@ -68,6 +73,16 @@ export default async function VendaPage({
           <HonestSection area={area} />
           <FaqSection area={area} />
           <ClosingSection area={area} />
+          <section
+            id="outros-guias"
+            aria-labelledby="outros-guias-titulo"
+            className="max-w-[1200px] mx-auto px-5 md:px-10 pb-12 md:pb-20 flex flex-col gap-4"
+          >
+            <h2 id="outros-guias-titulo" className="m-0 font-serif font-normal text-[22px] md:text-[32px] leading-[1.15] tracking-[-.015em]">
+              Outros guias do Copiloto Carreira
+            </h2>
+            <GuiasCards excluir={area.slug} />
+          </section>
         </main>
         <StickyBuyBar area={area.slug} />
       </TrilhaProvider>

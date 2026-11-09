@@ -48,7 +48,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-10 bg-[#F5EFE6]/94 backdrop-blur-[8px] border-b border-[#E6DCCD]">
       <div className="max-w-[1200px] mx-auto h-14 md:h-[72px] px-5 md:px-10 flex items-center justify-between gap-6">
-        <Link href="/" className="flex items-center gap-[9px] text-[#2A2420] no-underline">
+        <Link href="/" className="min-h-12 flex items-center gap-[9px] text-[#2A2420] no-underline">
           <LogoSimbolo size={22} />
           <span className="font-serif text-[17px] md:text-[19px] tracking-[-0.015em] whitespace-nowrap">{BRAND_NAME}</span>
         </Link>
@@ -79,7 +79,7 @@ export default function Header() {
             onClick={() => setMenuOpen((open) => !open)}
             aria-expanded={menuOpen}
             aria-label={menuOpen ? "Fechar navegação" : "Abrir navegação"}
-            className="md:hidden min-h-11 pl-2 border-0 bg-transparent cursor-pointer flex items-center gap-2 text-[15px] font-medium text-[#2A2420]"
+            className="md:hidden min-h-12 pl-2 border-0 bg-transparent cursor-pointer flex items-center gap-2 text-[15px] font-medium text-[#2A2420]"
           >
             {menuOpen ? "Fechar" : "Menu"}
             <span className="flex flex-col gap-[5px]" aria-hidden="true">

@@ -71,6 +71,8 @@ export default function Hero({ area }: { area: Area }) {
           width={64}
           height={80}
           alt={`Capa do guia de ${area.name}`}
+          // Acima da dobra no mobile: sem lazy (CWV-04). Não é o LCP (o H1 é), então sem preload.
+          loading="eager"
           className="flex-none w-16 h-20 object-cover rounded-md shadow-[0_1px_2px_rgba(60,40,20,.08),0_4px_10px_rgba(60,40,20,.10)]"
         />
         <div className="flex flex-col gap-0.5">

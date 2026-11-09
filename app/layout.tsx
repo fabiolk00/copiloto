@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Newsreader, Instrument_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
-import { SEO_TITLE_HOME, siteOrigin } from "@/lib/seo";
+import Footer from "@/components/site/Footer";
+import { SEO_DESCRIPTION_HOME, SEO_TITLE_HOME, siteOrigin } from "@/lib/seo";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -20,8 +21,7 @@ const instrumentSans = Instrument_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin()),
   title: SEO_TITLE_HOME,
-  description:
-    "Guias digitais por profissão (Financeiro, Análise de Dados, Comercial, Administrativo, Marketing, Customer Success) com etapas semanais e prompts de IA prontos para aplicar.",
+  description: SEO_DESCRIPTION_HOME,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -32,6 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col font-sans">
         {children}
+        <Footer />
         <Analytics />
       </body>
     </html>

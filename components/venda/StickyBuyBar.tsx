@@ -6,7 +6,7 @@ import CtaLink from "./CtaLink";
 
 /**
  * Barra fixa de compra, só no mobile. Aparece depois do hero (scrollY > 560)
- * e some quando o fechamento entra na tela.
+ * e some do fechamento em diante (fechamento, outros guias, rodapé).
  */
 export default function StickyBuyBar({ area }: { area: string }) {
   const [passouHero, setPassouHero] = useState(false);
@@ -19,11 +19,22 @@ export default function StickyBuyBar({ area }: { area: string }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Some do fechamento em diante: o fechamento, "Outros guias" e o rodapé não
+  // podem ficar cobertos pela barra fixa no mobile.
   useEffect(() => {
-    const alvo = document.getElementById("fechamento");
-    if (!alvo) return;
-    const io = new IntersectionObserver(([entry]) => setFechamentoVisivel(entry.isIntersecting));
-    io.observe(alvo);
+    const alvos = ["fechamento", "outros-guias", "rodape"]
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+    if (alvos.length === 0) return;
+    const visiveis = new Set<Element>();
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) visiveis.add(e.target);
+        else visiveis.delete(e.target);
+      }
+      setFechamentoVisivel(visiveis.size > 0);
+    });
+    alvos.forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, []);
 
