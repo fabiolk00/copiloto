@@ -1,0 +1,21 @@
+home              LCP_mediana=764ms (runs [762, 764, 767]) FCP=764 TBT=51 CLS=0.000 perf=1
+    elemento: body.min-h-full > main.flex-1 > header.w-full > p.m-0 :: Um caminho de 8 semanas para a sua área, com prompts de IA prontos. Pagamento ú… | <p class="m-0 text-base md:
+    fases: {'timeToFirstByte': 12, 'elementRenderDelay': 115}  render-blocking: [('3cmc9xo_a7o9u.css', 157)]
+financeiro        LCP_mediana=915ms (runs [911, 915, 917]) FCP=915 TBT=67 CLS=0.000 perf=1
+    elemento: main.max-md:overflow-x-clip > div.max-w-[1200px] > div.flex > h1.m-0 :: Do fechamento do mês para a mesa onde as decisões são tomadas. | <h1 class="m-0 font-serif font-normal text-[3
+    fases: {'timeToFirstByte': 12, 'elementRenderDelay': 152}  render-blocking: [('3cmc9xo_a7o9u.css', 157)]
+analise-de-dados  LCP_mediana=917ms (runs [914, 917, 918]) FCP=917 TBT=98 CLS=0.000 perf=0.99
+    elemento: main.max-md:overflow-x-clip > div.max-w-[1200px] > div.flex > h1.m-0 :: Do “puxa esse relatório pra mim” para a pessoa consultada antes da decisão. | <h1 class="m-0 font-serif font-n
+    fases: {'timeToFirstByte': 11, 'elementRenderDelay': 164}  render-blocking: [('3cmc9xo_a7o9u.css', 159)]
+comercial         LCP_mediana=913ms (runs [911, 913, 916]) FCP=913 TBT=73 CLS=0.000 perf=1
+    elemento: main.max-md:overflow-x-clip > div.max-w-[1200px] > div.flex > h1.m-0 :: Uma rotina comercial que não depende de estar motivado no dia. | <h1 class="m-0 font-serif font-normal text-[3
+    fases: {'timeToFirstByte': 9, 'elementRenderDelay': 164}  render-blocking: [('3cmc9xo_a7o9u.css', 157)]
+marketing         LCP_mediana=908ms (runs [908, 908, 913]) FCP=908 TBT=40 CLS=0.000 perf=1
+    elemento: main.max-md:overflow-x-clip > div.max-w-[1200px] > div.flex > h1.m-0 :: Do post e do relatório para a mesa onde o investimento é decidido. | <h1 class="m-0 font-serif font-normal tex
+    fases: {'timeToFirstByte': 12, 'elementRenderDelay': 134}  render-blocking: [('3cmc9xo_a7o9u.css', 154)]
+customer-success  LCP_mediana=916ms (runs [915, 916, 917]) FCP=916 TBT=75 CLS=0.000 perf=1
+    elemento: main.max-md:overflow-x-clip > div.max-w-[1200px] > div.flex > h1.m-0 :: Da fila de chamados para a conta que a empresa quer proteger. | <h1 class="m-0 font-serif font-normal text-[31
+    fases: {'timeToFirstByte': 15, 'elementRenderDelay': 145}  render-blocking: [('3cmc9xo_a7o9u.css', 158)]
+administrativo    LCP_mediana=915ms (runs [914, 915, 917]) FCP=915 TBT=58 CLS=0.000 perf=1
+    elemento: main.max-md:overflow-x-clip > div.max-w-[1200px] > div.flex > h1.m-0 :: Uma rotina administrativa que mostra o seu valor e abre o próximo cargo. | <h1 class="m-0 font-serif font-norm
+    fases: {'timeToFirstByte': 12, 'elementRenderDelay': 133}  render-blocking: [('3cmc9xo_a7o9u.css', 157)]

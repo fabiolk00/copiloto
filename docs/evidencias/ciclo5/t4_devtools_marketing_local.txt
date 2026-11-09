@@ -1,0 +1,3 @@
+run 1 throttling=devtools LCP_ms 1660 TBT_ms 224 CLS 0.0008
+run 2 throttling=devtools LCP_ms 1704 TBT_ms 196 CLS 0.0008
+run 3 throttling=devtools LCP_ms 1698 TBT_ms 125 CLS 0.0008

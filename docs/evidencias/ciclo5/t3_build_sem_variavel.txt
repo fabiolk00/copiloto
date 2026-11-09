@@ -1,0 +1,120 @@
+### next build sem MP_ACCESS_TOKEN
+Error: Failed to collect configuration for /api/internal/reconcile
+    at ignore-listed frames {
+  [cause]: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "MP_ACCESS_TOKEN"
+      ],
+      "message": "Invalid input: expected string, received undefined"
+    }
+  ]
+      at module evaluation (lib/env.ts:56:30)
+      at module evaluation (app/api/internal/reconcile/route.ts:4:1)
+### next build sem MP_WEBHOOK_SECRET
+Error: Failed to collect configuration for /api/internal/reconcile
+    at ignore-listed frames {
+  [cause]: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "MP_WEBHOOK_SECRET"
+      ],
+      "message": "Invalid input: expected string, received undefined"
+    }
+  ]
+      at module evaluation (lib/env.ts:56:30)
+      at module evaluation (app/api/internal/reconcile/route.ts:4:1)
+### next build sem DATABASE_URL
+Error: Failed to collect configuration for /api/internal/reconcile
+    at ignore-listed frames {
+  [cause]: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "DATABASE_URL"
+      ],
+      "message": "Invalid input: expected string, received undefined"
+    }
+  ]
+      at module evaluation (lib/env.ts:56:30)
+      at module evaluation (app/api/internal/reconcile/route.ts:4:1)
+### next build sem SUPABASE_URL
+Error: Failed to collect configuration for /api/internal/reconcile
+    at ignore-listed frames {
+  [cause]: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "SUPABASE_URL"
+      ],
+      "message": "Invalid input: expected string, received undefined"
+    }
+  ]
+      at module evaluation (lib/env.ts:56:30)
+      at module evaluation (app/api/internal/reconcile/route.ts:4:1)
+### next build sem SUPABASE_SERVICE_ROLE_KEY
+Error: Failed to collect configuration for /api/internal/reconcile
+    at ignore-listed frames {
+  [cause]: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "message": "Invalid input: expected string, received undefined"
+    }
+  ]
+      at module evaluation (lib/env.ts:56:30)
+      at module evaluation (app/api/internal/reconcile/route.ts:4:1)
+### next build com RECONCILE_SECRET invalida
+  Collecting page data using 3 workers ...
+Error: Failed to collect configuration for /api/internal/reconcile
+    at ignore-listed frames {
+  [cause]: Error [ZodError]: [
+    {
+      "origin": "string",
+      "code": "too_small",
+      "minimum": 32,
+      "inclusive": true,
+      "path": [
+        "RECONCILE_SECRET"
+      ],
+      "message": "RECONCILE_SECRET deve ter ao menos 32 caracteres"
+    }
+### next build com SUPABASE_URL invalida
+  Collecting page data using 3 workers ...
+Error: Failed to collect configuration for /api/internal/reconcile
+    at ignore-listed frames {
+  [cause]: Error [ZodError]: [
+    {
+      "code": "invalid_format",
+      "format": "url",
+      "path": [
+        "SUPABASE_URL"
+      ],
+      "message": "SUPABASE_URL deve ser uma URL (https://<ref>.supabase.co)"
+    }
+  ]
+      at module evaluation (lib/env.ts:56:30)
+### next build com MP_PIX_EXPIRATION invalida
+  Collecting page data using 3 workers ...
+Error: Failed to collect configuration for /api/internal/reconcile
+    at ignore-listed frames {
+  [cause]: Error [ZodError]: [
+    {
+      "origin": "string",
+      "code": "invalid_format",
+      "format": "regex",
+      "pattern": "/^P(?!$)(\\d+D)?(T(?!$)(\\d+H)?(\\d+M)?(\\d+S)?)?$/",
+      "path": [
+        "MP_PIX_EXPIRATION"
+      ],
+      "message": "MP_PIX_EXPIRATION deve ser uma duração ISO 8601 (ex.: PT30M)"
+    }

@@ -40,6 +40,15 @@ Registro para atribuir causa a variações no Search Console (OPS-05).
 | `siteOrigin()` removida; layout usa `metadataBase: new URL(SITE_URL)` | Ninguém volta a derivar o host do ambiente |
 | Testes: tabela de lastro (description/resumo x texto renderizado) nos 6 guias; metadataBase e title sem template no layout; títulos finais com a marca uma vez; noindex x publicada; lastmod por guia | Regressão automática |
 
+## 2026-11-09: ciclo 5 (reconciliação da produção, sem mudança de código do site)
+
+| Registro | Evidência |
+|---|---|
+| Produção medida às 17:25Z e 17:43Z: as 9 URLs (3 variações cada, nó `iad1`) servem o conteúdo de 78e048c; campos de SEO e texto visível iguais ao build local | `docs/evidencias/ciclo5/t1_*` |
+| Causa reproduzida da falha dos previews: build sem qualquer das 5 variáveis obrigatórias de `lib/env.ts` falha em `/api/internal/reconcile` | `docs/VERCEL_PREVIEW.md`, `docs/evidencias/ciclo5/t3_build_sem_variavel.txt` |
+| LCP de laboratório (Lighthouse 13.6.0 mobile) entre 0,76 e 0,96 s, elemento LCP é texto em todas as páginas; nenhuma correção de LCP aplicada | `docs/evidencias/ciclo5/t4_*` |
+| Documentos para o dono e o Revalidador | `docs/PRIVACIDADE_FLUXO_DE_DADOS.md`, `docs/PENDENCIAS_DONO.md`, `docs/HANDOFF_REVALIDADOR.md` |
+
 ## Pendências humanas (bloqueiam publicação de partes do plano)
 
 1. `/sobre`: confirmar nome, cargo, tempo de experiência, foto, LinkedIn, fontes de pesquisa e quem validou cada área (todos marcados TODO_CONFIRMAR). Publicar trocando `PAGINAS_INSTITUCIONAIS.sobre.publicada` em `lib/institucional.ts`.

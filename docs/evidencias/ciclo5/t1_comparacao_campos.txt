@@ -1,0 +1,27 @@
+/                   default    iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/                   googlebot  iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/                   cachebust  iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/financeiro         default    iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/financeiro         googlebot  iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/financeiro         cachebust  iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/analise-de-dados   default    iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/analise-de-dados   googlebot  iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/analise-de-dados   cachebust  iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/comercial          default    iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/comercial          googlebot  iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/comercial          cachebust  iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/marketing          default    iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/marketing          googlebot  iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/marketing          cachebust  iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/customer-success   default    iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/customer-success   googlebot  iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/customer-success   cachebust  iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/administrativo     default    iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/administrativo     googlebot  iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/administrativo     cachebust  iguais=['title', 'description', 'canonical', 'robots', 'h1', 'h2_count', 'tem_n', 'faq_respostas', 'faq_ancoras', 'json_ld', 'og_image', 'tem_footer'] diferentes=[] corpo_identico_sha256=False
+/sitemap.xml        default    iguais=['loc_count', 'locs', 'lastmod'] diferentes=[] corpo_identico_sha256=True
+/sitemap.xml        googlebot  iguais=['loc_count', 'locs', 'lastmod'] diferentes=[] corpo_identico_sha256=True
+/sitemap.xml        cachebust  iguais=['loc_count', 'locs', 'lastmod'] diferentes=[] corpo_identico_sha256=True
+/robots.txt         default    iguais=['robots'] diferentes=[] corpo_identico_sha256=True
+/robots.txt         googlebot  iguais=['robots'] diferentes=[] corpo_identico_sha256=True
+/robots.txt         cachebust  iguais=['robots'] diferentes=[] corpo_identico_sha256=True

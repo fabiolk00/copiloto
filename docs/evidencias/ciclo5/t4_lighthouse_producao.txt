@@ -1,0 +1,7 @@
+home              LCP_med=930 [930, 930, 930]  TBT_med=94 [58, 115, 94]  CLS_med=0  FCP_med=930
+financeiro        LCP_med=953 [953, 953, 926]  TBT_med=150 [185, 115, 150]  CLS_med=0  FCP_med=953
+analise-de-dados  LCP_med=953 [946, 970, 953]  TBT_med=122 [119, 122, 269]  CLS_med=0  FCP_med=953
+comercial         LCP_med=947 [933, 952, 947]  TBT_med=204 [206, 204, 195]  CLS_med=0  FCP_med=947
+marketing         LCP_med=957 [969, 951, 957]  TBT_med=141 [141, 116, 163]  CLS_med=0  FCP_med=957
+customer-success  LCP_med=951 [951, 951, 965]  TBT_med=127 [213, 120, 127]  CLS_med=0  FCP_med=951
+administrativo    LCP_med=953 [938, 953, 955]  TBT_med=142 [142, 131, 149]  CLS_med=0  FCP_med=953

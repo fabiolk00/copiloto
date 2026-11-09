@@ -1,0 +1,25 @@
+2026-11-09T17:42:42Z
+== raiz sem www -> www
+raiz -> https://www.copilotocarreira.com.br/ (saltos=1) status=200
+== Cabeçalhos
+HTTP/1.1 200 Connection Established
+HTTP/2 200 
+cache-control: public, max-age=0, must-revalidate
+content-type: text/html; charset=utf-8
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=63072000; includeSubDomains; preload
+x-content-type-options: nosniff
+== TTFB
+ttfb=0.251559s total=0.288138s tamanho=132663B
+== 404
+status_pagina_inexistente=404
+== estatico
+HTTP/1.1 200 Connection Established
+HTTP/2 200 
+cache-control: public,max-age=31536000,immutable
+== sitemap locs
+7
+== api noindex
+HTTP/1.1 200 Connection Established
+HTTP/2 404 
+x-robots-tag: noindex, nofollow
