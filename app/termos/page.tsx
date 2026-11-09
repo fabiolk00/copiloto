@@ -2,15 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PaginaInstitucionalLayout from "@/components/site/PaginaInstitucional";
 import { BRAND_NAME, SUPPORT_EMAIL } from "@/lib/guias";
-import { paginaPublicada, paginaVisivel } from "@/lib/institucional";
-import { pageMetadata } from "@/lib/seo";
+import { paginaVisivel } from "@/lib/institucional";
+import { institucionalMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = pageMetadata({
+export const metadata: Metadata = institucionalMetadata("termos", {
   title: `Termos de uso | ${BRAND_NAME}`,
   description:
     "Condições de compra e uso dos guias de carreira em PDF do Copiloto Carreira: o que é o produto, como é entregue, licença de uso pessoal e contato.",
-  path: "/termos",
-  noindex: !paginaPublicada("termos"),
 });
 
 /*

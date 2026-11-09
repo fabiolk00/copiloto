@@ -13,7 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const institucionais = (Object.keys(PAGINAS_INSTITUCIONAIS) as PaginaInstitucional[]).filter(paginaPublicada);
   return [
     { url: canonicalUrl("/"), lastModified: ATUALIZADO_EM.home },
-    ...getAllSlugs().map((s) => ({ url: canonicalUrl(`/${s}`), lastModified: ATUALIZADO_EM.guias })),
+    ...getAllSlugs().map((s) => ({ url: canonicalUrl(`/${s}`), lastModified: ATUALIZADO_EM.guias[s] })),
     ...institucionais.map((p) => ({ url: canonicalUrl(`/${p}`), lastModified: ATUALIZADO_EM.institucional })),
   ];
 }

@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
 import PaginaInstitucionalLayout from "@/components/site/PaginaInstitucional";
 import { BRAND_NAME, SUPPORT_EMAIL } from "@/lib/guias";
-import { paginaPublicada } from "@/lib/institucional";
-import { pageMetadata } from "@/lib/seo";
+import { institucionalMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = pageMetadata({
+export const metadata: Metadata = institucionalMetadata("privacidade", {
   title: `Política de privacidade | ${BRAND_NAME}`,
   description:
     "Quais dados o Copiloto Carreira coleta na compra dos guias em PDF, para que são usados, com quem são compartilhados e como exercer seus direitos pela LGPD.",
-  path: "/privacidade",
-  noindex: !paginaPublicada("privacidade"),
 });
 
 /*

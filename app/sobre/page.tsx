@@ -2,15 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PaginaInstitucionalLayout from "@/components/site/PaginaInstitucional";
 import { BRAND_NAME, SUPPORT_EMAIL } from "@/lib/guias";
-import { paginaPublicada, paginaVisivel } from "@/lib/institucional";
-import { pageMetadata } from "@/lib/seo";
+import { paginaVisivel } from "@/lib/institucional";
+import { institucionalMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = pageMetadata({
+export const metadata: Metadata = institucionalMetadata("sobre", {
   title: `Sobre o ${BRAND_NAME}: quem escreve os guias`,
   description:
     "Quem está por trás do Copiloto Carreira, por que os guias de carreira em PDF foram criados e como cada guia é construído, revisado e atualizado.",
-  path: "/sobre",
-  noindex: !paginaPublicada("sobre"),
 });
 
 /*

@@ -3,7 +3,7 @@ import { Newsreader, Instrument_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import Footer from "@/components/site/Footer";
-import { SEO_DESCRIPTION_HOME, SEO_TITLE_HOME, siteOrigin } from "@/lib/seo";
+import { SEO_DESCRIPTION_HOME, SEO_TITLE_HOME, SITE_URL } from "@/lib/seo";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -19,7 +19,9 @@ const instrumentSans = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteOrigin()),
+  // Resolve og:image/twitter:image relativos para o host www (não a URL do deploy).
+  metadataBase: new URL(SITE_URL),
+  // String simples, sem `template`: os títulos das páginas já trazem a marca.
   title: SEO_TITLE_HOME,
   description: SEO_DESCRIPTION_HOME,
 };

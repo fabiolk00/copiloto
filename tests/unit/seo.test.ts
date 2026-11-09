@@ -13,16 +13,25 @@ import {
   canonicalUrl,
   organizationLd,
   pageMetadata,
+  ogImageGuia,
   productLd,
-  siteOrigin,
+  SITE_URL,
+  ATUALIZADO_EM,
+  institucionalMetadata,
 } from "@/lib/seo";
 import { PAGINAS_INSTITUCIONAIS } from "@/lib/institucional";
+
+// next/font só existe dentro do compilador do Next; aqui interessa só o objeto `metadata` do layout.
+vi.mock("next/font/google", () => {
+  const fonte = () => ({ variable: "", className: "", style: {} });
+  return { Newsreader: fonte, Instrument_Sans: fonte };
+});
 
 const WWW = "https://www.copilotocarreira.com.br";
 
 describe("seo", () => {
   it("origem canônica é o host www, HTTPS, mesmo com APP_URL=localhost (IDX-03/IDX-05)", () => {
-    expect(siteOrigin()).toBe(WWW);
+    expect(SITE_URL).toBe(WWW);
   });
 
   it("host canônico continua www com APP_URL ausente ou apontando para outro host", async () => {
@@ -34,7 +43,6 @@ describe("seo", () => {
         vi.resetModules();
         const seo = await import("@/lib/seo");
         expect(seo.SITE_URL).toBe(WWW);
-        expect(seo.siteOrigin()).toBe(WWW);
         expect(seo.canonicalUrl("/marketing")).toBe(`${WWW}/marketing`);
         expect(seo.pageMetadata({ title: "t", description: "d", path: "/" }).alternates?.canonical).toBe(WWW);
         expect(seo.organizationLd().url).toBe(WWW);
@@ -70,6 +78,21 @@ describe("seo", () => {
       expect(d.length).toBeLessThanOrEqual(160);
     });
     AREAS.forEach((a) => expect(SEO_GUIAS[a.slug].title.startsWith("Guia")).toBe(true));
+  });
+
+  it("lastmod é por guia: cada área tem a própria data, e o sitemap usa a da área", () => {
+    expect(Object.keys(ATUALIZADO_EM.guias).sort()).toEqual([...getAllSlugs()].sort());
+    const antes = new Map(sitemap().map((u) => [u.url, u.lastModified]));
+    for (const s of getAllSlugs()) expect(antes.get(`${WWW}/${s}`)).toBe(ATUALIZADO_EM.guias[s]);
+    // Editar um guia só muda o lastmod dele.
+    const original = ATUALIZADO_EM.guias.marketing;
+    try {
+      ATUALIZADO_EM.guias.marketing = "2099-01-01";
+      const depois = new Map(sitemap().map((u) => [u.url, u.lastModified]));
+      for (const [url, data] of depois) expect(data, url).toBe(url === `${WWW}/marketing` ? "2099-01-01" : antes.get(url));
+    } finally {
+      ATUALIZADO_EM.guias.marketing = original;
+    }
   });
 
   it("sitemap lista home + 6 guias no host www, com lastmod ISO real e sem rascunhos", () => {
@@ -117,4 +140,62 @@ describe("seo", () => {
   });
 
 
+});
+
+describe("metadados resolvidos pelo Next", () => {
+  it("layout: metadataBase no host www e title sem template (sem marca duplicada)", async () => {
+    const { metadata } = await import("@/app/layout");
+    expect(new URL(String(metadata.metadataBase)).href).toBe(`${WWW}/`);
+    expect(typeof metadata.title).toBe("string");
+  });
+
+  it("og:image e twitter:image relativos resolvem para o host www", () => {
+    const m = pageMetadata({ title: "t", description: "d", path: "/marketing", image: ogImageGuia(AREAS[0]) });
+    const og = (m.openGraph?.images as { url: string }[])[0].url;
+    const tw = (m.twitter?.images as string[])[0];
+    for (const rel of [og, tw]) expect(new URL(rel, `${WWW}/`).href.startsWith(`${WWW}/`)).toBe(true);
+  });
+
+  it("títulos finais de todas as rotas: marca uma vez só, até 65 caracteres e únicos", async () => {
+    const { metadata: layout } = await import("@/app/layout");
+    // Sem template no layout, o <title> renderizado é exatamente o title da página.
+    expect(layout.title).not.toHaveProperty("template");
+    const { metadata: home } = await import("@/app/page");
+    const { generateMetadata } = await import("@/app/[area]/page");
+    const guias = await Promise.all(AREAS.map((a) => generateMetadata({ params: Promise.resolve({ area: a.slug }) })));
+    const inst = await Promise.all(
+      ["sobre", "privacidade", "termos"].map(async (p) => (await import(`@/app/${p}/page`)).metadata as { title: string }),
+    );
+    const titulos = [home, ...guias, ...inst].map((m) => String(m.title));
+    expect(new Set(titulos).size).toBe(titulos.length);
+    for (const t of titulos) {
+      expect(t.split("Copiloto Carreira").length - 1, t).toBe(1);
+      expect(t.length, t).toBeLessThanOrEqual(65);
+    }
+  });
+});
+
+describe("indexação das páginas institucionais acompanha a publicação", () => {
+  const paginas = Object.keys(PAGINAS_INSTITUCIONAIS) as (keyof typeof PAGINAS_INSTITUCIONAIS)[];
+
+  it.each(paginas)("/%s: noindex enquanto rascunho, indexável quando publicada (sem valor manual)", (p) => {
+    const original = PAGINAS_INSTITUCIONAIS[p].publicada;
+    try {
+      for (const publicada of [false, true]) {
+        PAGINAS_INSTITUCIONAIS[p].publicada = publicada;
+        const m = institucionalMetadata(p, { title: "t", description: "d" });
+        expect(m.alternates?.canonical).toBe(`${WWW}/${p}`);
+        expect(JSON.stringify(m.robots).includes('"index":false')).toBe(!publicada);
+        expect(sitemap().some((u) => u.url === `${WWW}/${p}`)).toBe(publicada);
+      }
+    } finally {
+      PAGINAS_INSTITUCIONAIS[p].publicada = original;
+    }
+  });
+
+  it.each(paginas)("/%s: a rota usa institucionalMetadata (robots coerente com a flag atual)", async (p) => {
+    const { metadata } = await import(`@/app/${p}/page`);
+    expect(JSON.stringify(metadata.robots).includes('"index":false')).toBe(!PAGINAS_INSTITUCIONAIS[p].publicada);
+    expect(metadata.alternates.canonical).toBe(`${WWW}/${p}`);
+  });
 });

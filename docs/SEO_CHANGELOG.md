@@ -29,6 +29,17 @@ Registro para atribuir causa a variações no Search Console (OPS-05).
 | Testes sobre o HTML renderizado de cada rota (preço, [n], links) e host canônico com APP_URL ausente | Regressão automática |
 | `package-lock.json` sincronizado (commit separado) | `npm ci` falhava |
 
+## 2026-11-09: ciclo 3 (verificação de afirmações e metadados)
+
+| Mudança | Motivo |
+|---|---|
+| Descriptions de Financeiro, Dados e Administrativo: "diagnóstico de carreira" passa a "diagnóstico"; Dados cita "transformar análise em recomendação" (texto de um prompt visível); Administrativo cita "mapeamento de processos" | Cada afirmação precisa estar no texto visível da própria página; "diagnóstico de carreira" e "análises virem recomendação" não estavam (o `area.sub` não é renderizado) |
+| Resumo de Dados: "pedido às pressas" passa a "Do “puxa esse relatório” à pessoa consultada antes da decisão." | "Às pressas" era enfeite, sem lastro no H1 |
+| `institucionalMetadata(pagina, …)`: path e noindex derivados de `publicada` | Publicar a página tira o noindex e a põe no sitemap automaticamente |
+| `ATUALIZADO_EM.guias` com uma data por área | Editar um guia não mexe no lastmod dos outros |
+| `siteOrigin()` removida; layout usa `metadataBase: new URL(SITE_URL)` | Ninguém volta a derivar o host do ambiente |
+| Testes: tabela de lastro (description/resumo x texto renderizado) nos 6 guias; metadataBase e title sem template no layout; títulos finais com a marca uma vez; noindex x publicada; lastmod por guia | Regressão automática |
+
 ## Pendências humanas (bloqueiam publicação de partes do plano)
 
 1. `/sobre`: confirmar nome, cargo, tempo de experiência, foto, LinkedIn, fontes de pesquisa e quem validou cada área (todos marcados TODO_CONFIRMAR). Publicar trocando `PAGINAS_INSTITUCIONAIS.sobre.publicada` em `lib/institucional.ts`.

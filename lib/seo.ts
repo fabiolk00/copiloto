@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BRAND_NAME, PREVIEW_PASTA, SUPPORT_EMAIL, precoDaArea, type Area } from "@/lib/guias";
+import { paginaPublicada, type PaginaInstitucional } from "@/lib/institucional";
 
 /**
  * Origem canônica do site: SEMPRE o host www. A raiz sem www redireciona (308,
@@ -11,10 +12,6 @@ import { BRAND_NAME, PREVIEW_PASTA, SUPPORT_EMAIL, precoDaArea, type Area } from
  * ambiente deve sempre apontar para produção (previews nunca viram canônicas).
  */
 export const SITE_URL = "https://www.copilotocarreira.com.br";
-
-export function siteOrigin(): string {
-  return SITE_URL;
-}
 
 /**
  * URL absoluta HTTPS, sem query, hash nem parâmetros de tracking. Convenção:
@@ -35,11 +32,23 @@ export function canonicalUrl(path: string): string {
  * sitemap: só mudam quando o texto da página muda de fato. Data falsa (ex.:
  * `new Date()` a cada build) faz o Google ignorar o campo (IDX-04).
  */
-export const ATUALIZADO_EM = {
+export const ATUALIZADO_EM: {
+  home: string;
+  institucional: string;
+  /** Uma data por guia: editar um guia não muda o lastmod dos outros. */
+  guias: Record<string, string>;
+} = {
   home: "2026-11-09",
-  guias: "2026-11-09",
   institucional: "2026-11-09",
-} as const;
+  guias: {
+    financeiro: "2026-11-09",
+    "analise-de-dados": "2026-11-09",
+    comercial: "2026-11-09",
+    administrativo: "2026-11-09",
+    marketing: "2026-11-09",
+    "customer-success": "2026-11-09",
+  },
+};
 
 export const SEO_TITLE_HOME = `Guias de carreira em PDF com prompts de IA | ${BRAND_NAME}`;
 export const SEO_DESCRIPTION_HOME =
@@ -55,14 +64,14 @@ export const SEO_GUIAS: Record<string, { title: string; description: string; res
   financeiro: {
     title: `Guia de Financeiro em PDF | ${BRAND_NAME}`,
     description:
-      "Guia em PDF para profissionais de Financeiro: 8 semanas em 3 partes, diagnóstico de carreira e prompts de IA para conciliações, análises e apresentações.",
+      "Guia em PDF para profissionais de Financeiro: 8 semanas em 3 partes, diagnóstico e prompts de IA para conciliações, análises e apresentações.",
     resumo: "Do fechamento do mês à mesa onde as decisões são tomadas.",
   },
   "analise-de-dados": {
     title: `Guia de Análise de Dados em PDF | ${BRAND_NAME}`,
     description:
-      "Guia em PDF para quem trabalha com dados: 8 semanas em 3 partes, diagnóstico de carreira e prompts de IA para transformar análises em recomendação.",
-    resumo: "Do relatório pedido às pressas à pessoa consultada antes da decisão.",
+      "Guia em PDF para quem trabalha com dados: 8 semanas em 3 partes, diagnóstico e prompts de IA para transformar análise em recomendação.",
+    resumo: "Do “puxa esse relatório” à pessoa consultada antes da decisão.",
   },
   comercial: {
     title: `Guia de Comercial em PDF | ${BRAND_NAME}`,
@@ -73,7 +82,7 @@ export const SEO_GUIAS: Record<string, { title: string; description: string; res
   administrativo: {
     title: `Guia Administrativo em PDF | ${BRAND_NAME}`,
     description:
-      "Guia em PDF para a área Administrativa: 8 semanas em 3 partes, diagnóstico de carreira e prompts de IA para e-mails, planilhas, atas e processos.",
+      "Guia em PDF para a área Administrativa: 8 semanas em 3 partes, diagnóstico e prompts de IA para e-mails, planilhas, atas e mapeamento de processos.",
     resumo: "Uma rotina que mostra o seu valor e abre o próximo cargo.",
   },
   marketing: {
@@ -149,6 +158,15 @@ export function pageMetadata(input: {
     },
     twitter: { card: "summary_large_image", title: input.title, description: input.description, images: [image.url] },
   };
+}
+
+/**
+ * Metadados de Sobre, Privacidade e Termos. Path e indexação derivam da página:
+ * `noindex` sai sozinho quando `publicada` vira true em lib/institucional.ts,
+ * sem nenhum valor passado à mão (não dá para publicar e esquecer o noindex).
+ */
+export function institucionalMetadata(pagina: PaginaInstitucional, input: { title: string; description: string }): Metadata {
+  return pageMetadata({ ...input, path: `/${pagina}`, noindex: !paginaPublicada(pagina) });
 }
 
 export const organizationLd = () => ({

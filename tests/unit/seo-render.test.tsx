@@ -14,6 +14,7 @@ import VendaPage from "@/app/[area]/page";
 import Footer from "@/components/site/Footer";
 import FaqSection from "@/components/venda/FaqSection";
 import { AREAS, COMMON_FAQ } from "@/lib/guias";
+import { SEO_GUIAS } from "@/lib/seo";
 import { PAGINAS_INSTITUCIONAIS, type PaginaInstitucional } from "@/lib/institucional";
 import sitemap from "@/app/sitemap";
 
@@ -97,6 +98,70 @@ describe("SEO no HTML renderizado", () => {
     process.env.VERCEL_ENV = "preview";
     const html = renderToStaticMarkup(<Footer />);
     for (const p of Object.keys(PAGINAS_INSTITUCIONAIS)) expect(html).toContain(`href="/${p}"`);
+  });
+});
+
+/**
+ * Cada afirmação da meta description e do resumo do cartão precisa de lastro
+ * no texto visível da própria página (a description não pode prometer o que a
+ * página não entrega). Chave: trecho da description/resumo; valor: evidência
+ * que tem de aparecer no HTML renderizado do guia.
+ */
+const LASTRO: Record<string, Record<string, string>> = {
+  financeiro: {
+    "8 semanas": "Oito semanas",
+    "3 partes": "Parte III",
+    diagnóstico: "Diagnóstico de onde você está hoje",
+    "conciliações, análises e apresentações": "conciliações, análises e apresentações",
+    "Do fechamento do mês à mesa onde as decisões são tomadas.": "Do fechamento do mês para a mesa onde as decisões são tomadas.",
+  },
+  "analise-de-dados": {
+    "8 semanas": "Oito semanas",
+    "3 partes": "Parte III",
+    diagnóstico: "Diagnóstico de onde você está hoje",
+    "transformar análise em recomendação": "Transformar análise em recomendação",
+    "Do “puxa esse relatório” à pessoa consultada antes da decisão.": "para a pessoa consultada antes da decisão",
+    "“puxa esse relatório”": "puxa esse relatório",
+  },
+  comercial: {
+    "rotina de 8 semanas": "Oito semanas",
+    diagnóstico: "Diagnóstico da sua rotina comercial",
+    "vender com mais consistência": "prova de consistência",
+    "Uma rotina de vendas que não depende de motivação.": "Uma rotina comercial que não depende de estar motivado no dia.",
+  },
+  administrativo: {
+    "8 semanas": "Oito semanas",
+    "3 partes": "Parte III",
+    diagnóstico: "Diagnóstico de onde você está hoje",
+    "e-mails, planilhas, atas e mapeamento de processos": "e-mails, planilhas, atas e mapeamento de processos",
+    "Uma rotina que mostra o seu valor e abre o próximo cargo.": "mostra o seu valor e abre o próximo cargo",
+  },
+  marketing: {
+    "8 semanas": "Oito semanas",
+    diagnóstico: "Diagnóstico de onde você está hoje",
+    "conteúdo, campanhas e relatórios": "conteúdo, campanhas e relatórios de resultado",
+    "Do relatório à mesa onde o investimento é decidido.": "para a mesa onde o investimento é decidido",
+  },
+  "customer-success": {
+    "8 semanas": "Oito semanas",
+    "onboarding, reuniões de resultado e risco de churn": "onboarding, reuniões de resultado e risco de churn",
+    "apagar incêndio": "apagar incêndio",
+    "Da fila de chamados à conta que a empresa quer proteger.": "Da fila de chamados para a conta que a empresa quer proteger.",
+  },
+};
+
+describe("descriptions e resumos têm lastro no conteúdo visível", () => {
+  it.each(AREAS.map((a) => [a.slug] as const))("/%s", async (slug) => {
+    const lastro = LASTRO[slug];
+    expect(lastro, `sem tabela de lastro para ${slug}`).toBeDefined();
+    const { description, resumo } = SEO_GUIAS[slug];
+    // Toda chave precisa ser texto real da description ou do resumo (a tabela não pode envelhecer).
+    for (const trecho of Object.keys(lastro)) expect(`${description} ${resumo}`, trecho).toContain(trecho);
+    // E toda evidência precisa estar no texto visível da própria página, não em outro guia.
+    const html = await htmlDaRota(slug);
+    const semOutrosGuias = html.replace(/<section id="outros-guias"[\s\S]*?<\/section>/, " ");
+    const visivel = textoVisivel(semOutrosGuias).replace(/\s+/g, " ");
+    for (const [trecho, evidencia] of Object.entries(lastro)) expect(visivel, `"${trecho}" sem lastro`).toContain(evidencia);
   });
 });
 
